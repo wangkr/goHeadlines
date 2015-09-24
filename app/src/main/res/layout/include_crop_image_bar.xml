@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_alignParentBottom="true"
+    android:background="@color/theme_color"
+    android:divider="@drawable/crop__divider"
+    android:gravity="center_vertical"
+    android:showDividers="middle"
+    android:dividerPadding="15dp">
+
+    <ImageView
+        android:id="@+id/crop_bar_cancell"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:padding="15dp"
+        android:src="@mipmap/close_icn3"
+        android:layout_weight="1"
+        android:background="@drawable/btn_transparent_bg"/>
+
+
+    <RelativeLayout
+        android:id="@+id/crop_bar_rotate"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.8"
+        android:background="@drawable/btn_transparent_bg">
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@mipmap/rotate_icn"
+            android:layout_centerInParent="true"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="90"
+            android:textColor="#ffffff"
+            android:textSize="13sp"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/crop_bar_ok"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:padding="15dp"
+        android:src="@mipmap/ok_icn"
+        android:layout_weight="1"
+        android:background="@drawable/btn_transparent_bg"/>
+
+</LinearLayout>

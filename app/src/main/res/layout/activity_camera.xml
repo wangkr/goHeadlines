@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SurfaceView
+        android:id="@+id/surfaceview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <include layout="@layout/include_camera_top_bar"
+        android:id="@+id/camera_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/camera_top_bar_height"/>
+
+    <LinearLayout
+        android:id="@+id/barrier"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/cover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/camera_top_bar"
+        android:layout_above="@id/barrier"/>
+
+    <ImageView
+        android:id="@+id/focus_view"
+        android:layout_width="@dimen/focus_view_size"
+        android:layout_height="@dimen/focus_view_size"
+        android:src="@mipmap/focus_icn"
+        android:visibility="invisible"/>
+
+    <!-- 拍照工具栏-->
+    <RelativeLayout
+        android:id="@+id/camera_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/camera_bottom_bar_height"
+        android:layout_alignParentBottom="true"
+        android:background="@color/theme_color"
+        android:paddingLeft="20dp">
+        <com.cqyw.goheadlines.widget.CircleImageView
+            android:id="@+id/expand_button"
+            app:border_width="0dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@mipmap/collapse_icn"
+            android:layout_centerVertical="true"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+            <!-- 拍照按钮背景-->
+            <com.cqyw.goheadlines.widget.CircleImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_centerInParent="true"
+                app:border_color="#c2c2c2"
+                android:src="#555555"
+                app:border_width="4dp"
+                />
+            <!-- 拍照按钮前景-->
+            <com.cqyw.goheadlines.widget.CircleButton
+                android:id="@+id/shutter"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_centerInParent="true"
+                app:cb_color="#c2c2c2"
+                app:cb_pressedRingWidth="4dp"/>
+        </RelativeLayout>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/cover_icn_rl"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:layout_above="@id/camera_bottom_bar"
+        android:padding="5dp"
+        android:background="#88000000">
+        <com.cqyw.goheadlines.widget.horizonListView.HorizontalListView
+            android:id="@+id/cover_icon_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            />
+    </RelativeLayout>
+
+</RelativeLayout>

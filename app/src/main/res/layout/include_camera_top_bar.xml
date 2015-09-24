@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/camera_top_bar_height"
+    android:background="@color/theme_color"
+    android:layout_alignParentTop="true">
+
+    <ImageView
+        android:src="@mipmap/head"
+        android:layout_width="75dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:divider="@drawable/crop__divider"
+        android:dividerPadding="20dp"
+        android:showDividers="middle|beginning"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+
+        <ImageView
+            android:id="@+id/flash_light"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:src="@mipmap/flash_light_icn_disabled"/>
+        <ImageView
+            android:id="@+id/switch_camera"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@mipmap/switch_camera"/>
+    </LinearLayout>
+
+</RelativeLayout>

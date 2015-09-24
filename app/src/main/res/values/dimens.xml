@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="camera_top_bar_height">60dp</dimen>
+    <dimen name="camera_bottom_bar_height">100dp</dimen>
+    <dimen name="focus_view_size">50dp</dimen>
+    <dimen name="image_item_hpadding">3dp</dimen>
+    <dimen name="image_item_vpadding">10dp</dimen>
+    <dimen name="thumnail_default_width">60dp</dimen>
+    <dimen name="thumnail_default_height">80dp</dimen>
+</resources>

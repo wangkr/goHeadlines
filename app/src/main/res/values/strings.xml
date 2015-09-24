@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">头条相机</string>
+
+    <string-array name="cover_title">
+        <item>男生女生</item>
+        <item>伊周</item>
+        <item>Science</item>
+        <item>Nature</item>
+        <item>看天下</item>
+        <item>经济学人</item>
+        <item>福布斯</item>
+        <item>TIME</item>
+        <item>EASY</item>
+        <item>瑞丽</item>
+        <item>PlayBoy</item>
+        <item>二次元狂热</item>
+        <item>意林</item>
+        <item>NBA</item>
+        <item>南方周末</item>
+        <item>上头条</item>
+    </string-array>
+</resources>

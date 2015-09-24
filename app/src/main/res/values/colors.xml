@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="theme_color">#1c272d</color>
+    <color name="text_gray_dark">#9f9f9f</color>
+    <color name="text_dark">#525252</color>
+    <color name="hint_color">#a2a2a2</color>
+    <color name="white2">#f3f0e9</color>
+    <color name="text_bright_bk">#f3f0ef</color>
+    <color name="divider_color">#22525252</color>
+    <color name="semi_transparent">#88000000</color>
+    <color name="activity_camera_bar_bk">#1c2528</color>
+
+    <drawable name="text_theme_color">#3ac0b5</drawable>
+    <drawable name="text_press_color">#9f9f9f</drawable>
+    <drawable name="text_white_color">#ffffff</drawable>
+    <drawable name="text_disable_color">#c2c2c2</drawable>
+</resources>
