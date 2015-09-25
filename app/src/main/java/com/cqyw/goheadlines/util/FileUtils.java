@@ -31,7 +31,7 @@ public class FileUtils {
 	
 	public FileUtils(Context context){
 		this.mContext = context;
-		mDataRootPath = context.getCacheDir().getPath();
+		//mDataRootPath = context.getCacheDir().getPath();
 	}
 	
 	public String makeAppDir(){

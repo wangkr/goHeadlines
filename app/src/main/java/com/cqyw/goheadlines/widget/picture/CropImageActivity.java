@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -115,7 +116,7 @@ public class CropImageActivity extends MonitoredActivity {
         mImageView = new TouchMoveImageView(this,mBitmap);
         mWaterMark = new ImageView(this);
         coverIdx = getIntent().getIntExtra(Constant.COVER_INDEX, 0);
-        mWaterMark.setImageResource(Constant.coverResIds[coverIdx]);
+        mWaterMark.setBackgroundResource(Constant.coverResIds[coverIdx]);
         mCrViewLayout.addView(mImageView, params);
         mCrViewLayout.addView(mWaterMark, params);
     }
@@ -382,7 +383,7 @@ public class CropImageActivity extends MonitoredActivity {
 
     }
     private static class BackgroundJob extends
-            MonitoredActivity.LifeCycleAdapter implements Runnable {
+            LifeCycleAdapter implements Runnable {
 
         private final MonitoredActivity mActivity;
         private final ProgressDialog mDialog;

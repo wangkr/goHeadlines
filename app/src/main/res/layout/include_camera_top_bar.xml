@@ -7,8 +7,8 @@
 
     <ImageView
         android:src="@mipmap/head"
-        android:layout_width="75dp"
-        android:layout_height="30dp"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"/>
 
@@ -24,17 +24,17 @@
 
         <ImageView
             android:id="@+id/flash_light"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_height="match_parent"
+            android:layout_width="45dp"
+            android:padding="12dp"
+            android:background="@drawable/select_item_background"
             android:src="@mipmap/flash_light_icn_disabled"/>
         <ImageView
             android:id="@+id/switch_camera"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_width="45dp"
+            android:padding="10dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/select_item_background"
             android:src="@mipmap/switch_camera"/>
     </LinearLayout>
 

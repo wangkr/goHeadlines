@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Kairong on 2015/8/24.
@@ -101,6 +102,7 @@ public class CameraHelper {
             camera.setPreviewDisplay(holder);// 通过surfaceview显示取景画面
             camera.setDisplayOrientation(90);
             camera.startPreview();// 开始预览
+            camera_position = Camera.CameraInfo.CAMERA_FACING_BACK;
             isPreviewing = true;
         } catch (IOException e){
             e.printStackTrace();
@@ -168,21 +170,11 @@ public class CameraHelper {
     private void setParameters(int camera_position){
         photoParameters = camera.getParameters();
 
-        if(camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT){
-            photoParameters.set("rotation",90);
-        }
-
-        int screenW = Constant.displayWidth;
-        int screenH = Constant.displayHeight;
-        // 获取屏幕宽高比
-        String srcnRatio = CameraUtil.getWHratioString(screenH, screenW);
-
-
-        Camera.Size preSize = cameraUtil.getMaxPreviewSizeOfRatio(camera_position, srcnRatio);
         try {
-            photoParameters.setPreviewSize(preSize.width, preSize.height);
+            // 预览和图片分辨率都设置为屏幕分辨率
+            photoParameters.setPreviewSize(Constant.displayHeight, Constant.displayWidth);
             if(camera_position == Camera.CameraInfo.CAMERA_FACING_BACK){
-                photoParameters.setPictureSize(screenH, screenW);
+                photoParameters.setPictureSize(Constant.displayHeight, Constant.displayWidth);
             }
         }catch (NullPointerException e){
             e.printStackTrace();
@@ -324,19 +316,19 @@ public class CameraHelper {
         camera.takePicture(null,null,jpeg);
     }
     private void savePictureToGallery(Bitmap saved_photo, int orientation,int barrier_height) {
-        /*存储的图片宽高*/
-        int storeImageWidth = 0, storeImageHeight = 0;
-        /*保存的图片和预览图片的比例*/
-        float ratio = (float)photoParameters.getPictureSize().width/photoParameters.getPreviewSize().width;
-        // 确定最终图片的宽高
-        if (orientation == MainActivity.ORIENTATION_LAND || orientation == MainActivity.ORIENTATION_REV_LAND) {
-            storeImageWidth = saved_photo.getWidth() - Math.round(mContext.getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) * ratio + barrier_height * ratio);
-            storeImageHeight = saved_photo.getHeight();
-        } else {
-            storeImageWidth = saved_photo.getWidth() - Math.round(mContext.getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) * ratio + barrier_height * ratio);
-            storeImageHeight = saved_photo.getHeight();
-        }
-        // 对图片进行旋转和裁剪处理
+//        /*存储的图片宽高*/
+//        int storeImageWidth = 0, storeImageHeight = 0;
+//        /*保存的图片和预览图片的比例*/
+//        float ratio = (float)photoParameters.getPictureSize().width/photoParameters.getPreviewSize().width;
+//        // 确定最终图片的宽高
+//        if (orientation == MainActivity.ORIENTATION_LAND || orientation == MainActivity.ORIENTATION_REV_LAND) {
+//            storeImageWidth = saved_photo.getWidth() - Math.round(mContext.getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) * ratio + barrier_height * ratio);
+//            storeImageHeight = saved_photo.getHeight();
+//        } else {
+//            storeImageWidth = saved_photo.getWidth() - Math.round(mContext.getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) * ratio + barrier_height * ratio);
+//            storeImageHeight = saved_photo.getHeight();
+//        }
+        // 对图片进行旋转
         {
             // 后置摄像头对照片进行顺时针旋转90度，前置摄像头则逆时针转90度
             Matrix matRotate = new Matrix();
@@ -345,11 +337,11 @@ public class CameraHelper {
             } else {
                 matRotate.setRotate(orientation);
             }
-            int h = 0, w = Math.round(mContext.getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) * ratio);
+//            int h = 0, w = Math.round(mContext.getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) * ratio);
 
             try {
                 // 进行剪切旋转
-                saved_photo = Bitmap.createBitmap(saved_photo, w, h, storeImageWidth, storeImageHeight, matRotate, true);
+                saved_photo = Bitmap.createBitmap(saved_photo, 0, 0, saved_photo.getWidth(), saved_photo.getHeight(),  matRotate, true);
             } catch (OutOfMemoryError e) {
                 e.printStackTrace();
                 if (saved_photo != null && !saved_photo.isRecycled()) {
@@ -360,9 +352,9 @@ public class CameraHelper {
                 return;
             }
         }
+        String filename = Constant.MD5(new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date()));
 
-        File file = new File(IMAGE_SAVE, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) +
-                    ".jpg");
+        File file = new File(Constant.CACHEPATH, filename);
         savedPhotoPath = file.getPath();
 
         /*保存成临时文件*/
@@ -371,8 +363,8 @@ public class CameraHelper {
             saved_photo.compress(Bitmap.CompressFormat.JPEG, 90, bos);
             bos.flush();    // 刷新此缓冲区的输出流
             bos.close();    // 关闭此输出流并释放与此流有关的所有系统资源
-            // 刷新相册
-            Constant.refreshGallery(mContext,file);
+//            // 刷新相册
+//            Constant.refreshGallery(mContext,file);
             save_photo_state = SAVED_PHOTO;
             // 向MainActivity发送图片保存完成消息
             sendSavedMsg();

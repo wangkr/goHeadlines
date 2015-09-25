@@ -55,9 +55,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
     private int picTakenScrnOrient = 0;          // 拍照时的手机屏幕朝向
 
     private ImageView focus_view;                // 显示对焦光标
-    private ImageView cover;                     // 封面图片
+    private ImageView cover_view;                // 封面图片
     private ImageView flash_light;               // 闪光灯
-    private CircleImageView expand;              // 扩展按钮
+    private CircleImageView expand_button;       // 扩展按钮
     private ProgressDialog progressDialog;
     /*停止保存照片线程*/
     private boolean ifStopCPThread = false;
@@ -108,6 +108,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
 
         cameraHelper = new CameraHelper(this,holder,handler);
     }
+
     // 初始化视图资源
     private void initViews(){
         // 设置控件资源ID
@@ -115,12 +116,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
         LinearLayout previewing_barrier = (LinearLayout)findViewById(R.id.barrier);
 
         focus_view = (ImageView)findViewById(R.id.focus_view);
-        cover = (ImageView)findViewById(R.id.cover);
-        expand = (CircleImageView)findViewById(R.id.expand_button);
+        cover_view = (ImageView)findViewById(R.id.cover);
+        expand_button = (CircleImageView)findViewById(R.id.expand_button);
         flash_light = (ImageView)findViewById(R.id.flash_light);
 
         // 设置监听
-        expand.setOnClickListener(this);
+        expand_button.setOnClickListener(this);
         findViewById(R.id.shutter).setOnClickListener(this);
         findViewById(R.id.switch_camera).setOnClickListener(this);
         findViewById(R.id.flash_light).setOnClickListener(this);
@@ -134,7 +135,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
         View v = new View(this);
         previewing_barrier.addView(v, lp);
         // 设置封面
-        cover.setImageResource(Constant.coverResIds[0]);
+        cover_view.setImageResource(Constant.coverResIds[0]);
 
         // 设置“点击聚焦”和拍照模式菜单弹回
         surface.setOnTouchListener(onTouchListener);
@@ -155,13 +156,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
             cameraHelper.flashLightMode = defFLightMode;
             setFlashLightView(defFLightMode);
         }
+        // 切换摄像头图标的显示
+        findViewById(R.id.switch_camera).setVisibility(cameraHelper.cameraCount < 2?View.GONE:View.VISIBLE);
 
     }
     private AdapterView.OnItemClickListener onItemClickListener_coverList = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if(position != curCoverIndex){
-                cover.setImageResource(Constant.coverResIds[position]);
+                cover_view.setImageResource(Constant.coverResIds[position]);
                 curCoverIndex = position;
             }
         }
@@ -349,11 +352,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
     private void showCoverList(){
         final RelativeLayout cover_icn_rl = (RelativeLayout)findViewById(R.id.cover_icn_rl);
         if(ifCoverListShown){
-            expand.setImageResource(R.mipmap.expand_icn);
+            expand_button.setImageResource(R.mipmap.expand_icn);
             cover_icn_rl.setVisibility(View.INVISIBLE);
             ifCoverListShown = false;
         }else{
-            expand.setImageResource(R.mipmap.collapse_icn);
+            expand_button.setImageResource(R.mipmap.collapse_icn);
             cover_icn_rl.setVisibility(View.VISIBLE);
             ifCoverListShown = true;
         }
@@ -432,9 +435,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
     public void surfaceCreated(SurfaceHolder holder) {
         // 读取默认摄像头选项
         SharedPreferences cameraPos = PreferenceManager.getDefaultSharedPreferences(this);
-        int defCamPos = cameraPos.getInt(Constant.defCamPosKey,Camera.CameraInfo.CAMERA_FACING_FRONT);
-        if(defCamPos == Camera.CameraInfo.CAMERA_FACING_FRONT) flash_light.setVisibility(View.GONE);
-        cameraHelper.open(defCamPos);
+        // 如果只有一个摄像头，则默认打开后置摄像头，否则打开前置摄像头
+        if(cameraHelper.cameraCount == 1) {
+            cameraHelper.open();
+        } else if(cameraHelper.cameraCount >=2){
+            int defCamPos = cameraPos.getInt(Constant.defCamPosKey, Camera.CameraInfo.CAMERA_FACING_FRONT);
+            if (defCamPos == Camera.CameraInfo.CAMERA_FACING_FRONT)
+                flash_light.setVisibility(View.GONE);
+            cameraHelper.open(defCamPos);
+        }
 
         scrnOrientDetector = new ScrnOrientDetector(this);
 

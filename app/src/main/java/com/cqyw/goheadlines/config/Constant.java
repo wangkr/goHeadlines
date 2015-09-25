@@ -10,6 +10,9 @@ import com.cqyw.goheadlines.util.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by Kairong on 2015/9/22.
@@ -56,7 +59,7 @@ public class Constant {
     /**
      * 封面水印文件资源id
      */
-    public final static int[] coverResIds = {R.drawable.nanshengnvsheng,R.drawable.yizhou,R.drawable.science,R.drawable.nature
+    public final static int[] coverResIds = {R.drawable.nansheng,R.drawable.yizhou,R.drawable.science,R.drawable.nature
     ,R.drawable.kantianxia,R.drawable.jingjixueren,R.drawable.fubusi,R.drawable.time,R.drawable.easy
     ,R.drawable.ruili,R.drawable.playboy,R.drawable.erciyuan,R.drawable.yilin,R.drawable.nba
     ,R.drawable.nanfangzhoumo,R.drawable.shangtoutiao};
@@ -114,6 +117,34 @@ public class Constant {
             Logger.e("Error copying Exif data", e);
             return false;
         }
+    }
+
+    /**
+     * 将字符串转成16 位MD5值
+     *
+     * @param string
+     * @return
+     */
+    public static String MD5(String string) {
+        byte[] hash;
+        try {
+            hash = MessageDigest.getInstance("MD5").digest(
+                    string.getBytes("UTF-8"));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+        StringBuilder hex = new StringBuilder(hash.length * 2);
+        for (byte b : hash) {
+            if ((b & 0xFF) < 0x10)
+                hex.append("0");
+            hex.append(Integer.toHexString(b & 0xFF));
+        }
+//        return hex.toString();// 32位
+        return hex.toString().substring(8, 24);// 16位
     }
 
 }

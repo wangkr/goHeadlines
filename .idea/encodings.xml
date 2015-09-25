@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/WatermarkDrawable.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/util" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/widget/picture/CropImageActivity.java" charset="UTF-8" />
@@ -11,6 +13,7 @@
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/widget/picture/RotateBitmap.java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/widget/picture/TouchImageView.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/widget/picture/TouchMoveImageView.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/btn_transparent_bg.xml" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/easy.png" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/erciyuan.png" charset="GBK" />

@@ -23,9 +23,10 @@ public class WelcomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
         // 删除App缓存目录
-        new FileUtils(this).deleteCacheDir();
+        FileUtils fileUtils = new FileUtils(getApplicationContext());
+        fileUtils.deleteCacheDir();
         // 创建App缓存文件夹
-        Constant.CACHEPATH = new FileUtils(this).makeAppDir();
+        Constant.CACHEPATH = fileUtils.makeAppDir();
         Logger.d(TAG, "Constant.CACHEPATH = " + Constant.CACHEPATH);
 
         Display display = getWindowManager().getDefaultDisplay();
