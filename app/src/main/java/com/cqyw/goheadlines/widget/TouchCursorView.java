@@ -43,7 +43,7 @@ public class TouchCursorView extends ImageView {
 
         if(isTracking) {
             if(isPressing) {
-                // 首先清除画布
+                // 棣栧厛娓呴櫎鐢诲竷
                 clearCanvas(canvas);
                 paint.setColor(Color.argb(0xff, 0xff, 0xff, 0xff));
                 canvas.drawCircle(ax, ay, touchCursorSize / 2, paint);

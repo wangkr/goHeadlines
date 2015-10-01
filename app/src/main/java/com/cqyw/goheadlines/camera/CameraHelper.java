@@ -290,18 +290,18 @@ public class CameraHelper {
             isPreviewing = false;
             Bitmap saved_photo = BitmapFactory.decodeByteArray(data, 0, data.length);
             save_photo_state = SAVING_PHOTO;
-            savePictureToCache(saved_photo, orientation, barrier_height);
+            savePictureToCache(saved_photo/*, orientation, barrier_height*/);
         }
     };
 
     /**
      * 拍照回调函数
-     * @param orientation 照片方向
-     * @param barrier_height 遮幕高度
+//     * @param orientation 照片方向
+//     * @param barrier_height 遮幕高度
      */
-    public void takePhoto(final int orientation,final int barrier_height){
-        this.orientation = orientation;
-        this.barrier_height = barrier_height;
+    public void takePhoto(/*final int orientation,final int barrier_height*/){
+//        this.orientation = orientation;
+//        this.barrier_height = barrier_height;
         // 每次拍照前设置一下闪光灯
         setFlashLightMode();
         camera.takePicture(null,null,jpeg);
@@ -353,7 +353,7 @@ public class CameraHelper {
         camera.setParameters(photoParameters);
 
     }
-    private void savePictureToCache(Bitmap saved_photo, int orientation, int barrier_height) {
+    private void savePictureToCache(Bitmap saved_photo/*, int orientation, int barrier_height*/) {
 //        /*存储的图片宽高*/
 //        int storeImageWidth = 0, storeImageHeight = 0;
 //        /*保存的图片和预览图片的比例*/
@@ -366,33 +366,38 @@ public class CameraHelper {
 //            storeImageWidth = saved_photo.getWidth() - Math.round(mContext.getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) * ratio + barrier_height * ratio);
 //            storeImageHeight = saved_photo.getHeight();
 //        }
-        // 对图片进行旋转
-        {
-            // 后置摄像头对照片进行顺时针旋转90度，前置摄像头则逆时针转90度
-            Matrix matRotate = new Matrix();
-            if (camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                matRotate.setRotate(-orientation);
-            } else {
-                matRotate.setRotate(orientation);
-            }
+//        // 对图片进行旋转
+//        {
+//            // 后置摄像头对照片进行顺时针旋转90度，前置摄像头则逆时针转90度
+//            Matrix matRotate = new Matrix();
+//            if (camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+//                matRotate.setRotate(-orientation);
+//            } else {
+//                matRotate.setRotate(orientation);
+//            }
 //            int h = 0, w = Math.round(mContext.getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) * ratio);
+//
+//            try {
+//                // 进行剪切旋转
+//                saved_photo = Bitmap.createBitmap(saved_photo, 0, 0, saved_photo.getWidth(), saved_photo.getHeight(),  matRotate, true);
+//            } catch (OutOfMemoryError e) {
+//                e.printStackTrace();
+//                // 进行内存回收
+//                if (saved_photo != null && !saved_photo.isRecycled()) {
+//                    saved_photo.recycle();
+//                    saved_photo = null;
+//                    System.gc();
+//                }
+//                save_photo_state = SAVED_ERROR;
+//                handler.sendEmptyMessage(SAVED_ERROR);
+//                return;
+//            }
+//        }
+        // 先旋转90度
+        Matrix mRotate = new Matrix();
+        mRotate.setRotate(90);
+        saved_photo = Bitmap.createBitmap(saved_photo, 0, 0, saved_photo.getWidth(), saved_photo.getHeight(),  mRotate, true);
 
-            try {
-                // 进行剪切旋转
-                saved_photo = Bitmap.createBitmap(saved_photo, 0, 0, saved_photo.getWidth(), saved_photo.getHeight(),  matRotate, true);
-            } catch (OutOfMemoryError e) {
-                e.printStackTrace();
-                // 进行内存回收
-                if (saved_photo != null && !saved_photo.isRecycled()) {
-                    saved_photo.recycle();
-                    saved_photo = null;
-                    System.gc();
-                }
-                save_photo_state = SAVED_ERROR;
-                handler.sendEmptyMessage(SAVED_ERROR);
-                return;
-            }
-        }
         String filename = Constant.MD5(new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date()));
 
         File file = new File(Constant.CACHEPATH, filename);
@@ -401,7 +406,7 @@ public class CameraHelper {
         /*保存成临时文件*/
         try {
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-            saved_photo.compress(Bitmap.CompressFormat.JPEG, 90, bos);
+            saved_photo.compress(Bitmap.CompressFormat.JPEG, 100, bos);
             bos.flush();    // 刷新此缓冲区的输出流
             bos.close();    // 关闭此输出流并释放与此流有关的所有系统资源
             save_photo_state = SAVED_PHOTO;
@@ -410,6 +415,7 @@ public class CameraHelper {
         } catch (IOException | NullPointerException e){
             e.printStackTrace();
             save_photo_state = SAVED_ERROR;
+            handler.sendEmptyMessage(SAVED_ERROR);
         } finally {
             // 释放内存
             if(saved_photo!=null&&!saved_photo.isRecycled()){

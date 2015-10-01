@@ -17,6 +17,7 @@
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/picture/crop/CropImageActivity.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/share/weixin/AppRegister.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/util" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/widget/TouchCursorView.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/net/qiujuer/imageblurring/jni/ImageBlur.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/drawable" charset="UTF-8" />

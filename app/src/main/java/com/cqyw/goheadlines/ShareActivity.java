@@ -58,7 +58,7 @@ public class ShareActivity extends Activity implements RadioButton.OnCheckedChan
         iwxapi.registerApp(Constant.WX_APP_ID);
 
         wmPath = getIntent().getParcelableExtra(Constant.WM_IMAGE_URI);
-        showImage = BitmapLoader.decodeSampledBitmapFromUri(getContentResolver(),wmPath,showWidth,showHeight);
+        showImage = BitmapLoader.decodeSampledBitmapFromUri(getContentResolver(), wmPath, showWidth, showHeight);
 
         checkedTxtColor = getResources().getColor(R.color.text_dark);
         uncheckedTxtColor = getResources().getColor(R.color.hint_color);
@@ -66,6 +66,8 @@ public class ShareActivity extends Activity implements RadioButton.OnCheckedChan
         initViews();
 
         showImageView.setImageBitmap(showImage);
+
+        System.gc();
     }
     private void initViews(){
         weibo = (RadioButton) findViewById(R.id.weibo);

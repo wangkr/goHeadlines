@@ -1,5 +1,6 @@
 package com.cqyw.goheadlines.picture;
 
+import com.cqyw.goheadlines.AppSharedPreference;
 import com.cqyw.goheadlines.picture.blur.FastBlur;
 import com.cqyw.goheadlines.util.Logger;
 import com.cqyw.goheadlines.config.Constant;
@@ -10,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -27,11 +29,12 @@ import android.widget.ImageView;
  * @Description: TODO
  * @author
  * @date 2014年11月28日 下午4:52:44 
- *
+ * @modified Kairong Wang
+ * @modifyTime 2015年10月1日
  */
 public class TouchMoveImageView extends ImageView {
 
-    private boolean isMove = false;
+    private boolean isPressed = false;
     public boolean isEdited = false;
     private boolean isBluring = false;
     private boolean hasBeenBlured = false;
@@ -39,10 +42,14 @@ public class TouchMoveImageView extends ImageView {
     private int penSize;                    // 画笔半径
 
     private Bitmap bluredBitmap = null;     // 模糊图
-    private Path path;
+    private Bitmap cursorBitmap = null;     // 光标图
     private Canvas blurCanvas = null;       // 模糊画布
-    private Paint paint;
+    private Canvas cursorCanvas = null;     // 光标画布
     private BlurMaskFilter blurMaskFilter;  // 模糊面具
+    private Path path;
+    private Paint paint;
+    private Paint paint1;
+    private Paint clearPaint;
 
     float x_down = 0;
     float y_down = 0;
@@ -116,6 +123,10 @@ public class TouchMoveImageView extends ImageView {
         this.radius = radius;
     }
 
+    public int getPenSize(){
+        return penSize;
+    }
+
     public void setBluring(boolean isBluring){
         this.isBluring = isBluring;
         if(isBluring){
@@ -159,7 +170,7 @@ public class TouchMoveImageView extends ImageView {
      */
     public void flip_Horizon(){
         Matrix m = new Matrix();
-        m.postScale(-1,1);
+        m.postScale(-1, 1);
         gintama = Bitmap.createBitmap(gintama, 0, 0, gintama.getWidth(), gintama.getHeight(), m, true);
         invalidate();
     }
@@ -186,6 +197,14 @@ public class TouchMoveImageView extends ImageView {
         canvas.drawBitmap(gintama, matrix, null);
         if(hasBeenBlured && bluredBitmap!=null) {
             canvas.drawBitmap(bluredBitmap, 0, 0, null);
+            if(isPressed){
+                clearCanvas(cursorCanvas);
+                cursorCanvas.drawCircle(x_down, y_down, penSize/2+penSize/6, paint1);
+                canvas.drawBitmap(cursorBitmap, 0, 0, null);
+            } else {
+                clearCanvas(cursorCanvas);
+                canvas.drawBitmap(cursorBitmap, 0, 0, null);
+            }
         }
         canvas.restore();
     }
@@ -199,14 +218,28 @@ public class TouchMoveImageView extends ImageView {
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(penSize);
+        
+        paint1 = new Paint();
+        paint1.setStyle(Paint.Style.FILL);
+        paint1.setColor(Color.argb(0x88, 0xff, 0xff, 0xff));
 
+        clearPaint = new Paint();
+        clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
-        blurMaskFilter = new BlurMaskFilter(penSize/4f>2f?penSize/4f:2f, BlurMaskFilter.Blur.SOLID);
+        blurMaskFilter = new BlurMaskFilter(penSize/5f>2f?penSize/5f:2f, BlurMaskFilter.Blur.SOLID);
         paint.setMaskFilter(blurMaskFilter);
 
         path = new Path();
     }
 
+    /**
+     * 清除画布
+     * @param canvas
+     */
+    private void clearCanvas(Canvas canvas){
+        canvas.drawPaint(clearPaint);
+    }
+    
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void EraseBitmp() {
         if(radius == 0){
@@ -215,6 +248,7 @@ public class TouchMoveImageView extends ImageView {
             return;
         }
         bluredBitmap = createNewBkPhoto();
+        cursorBitmap = createARG(bluredBitmap, Config.ARGB_8888);
 
         // 采用图像金字塔处理
         bluredBitmap = Bitmap.createBitmap(bluredBitmap, 0, 0, bluredBitmap.getWidth(), bluredBitmap.getHeight(), mDown, true);
@@ -222,26 +256,32 @@ public class TouchMoveImageView extends ImageView {
         bluredBitmap = Bitmap.createBitmap(bluredBitmap, 0, 0, bluredBitmap.getWidth(), bluredBitmap.getHeight(), mUp, true);
 
         blurCanvas = new Canvas(bluredBitmap);
+        cursorCanvas = new Canvas(cursorBitmap);
         hasBeenBlured = true;
         System.gc();
     }
 
     public boolean onTouchEvent(MotionEvent event) {
         if(isBluring){
-            float ax = event.getX();
-            float ay = event.getY();
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                isMove = false;
-                path.reset();
-                path.moveTo(ax, ay);
-                invalidate();
-                return true;
-            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                isMove = true;
-                path.lineTo(ax,ay);
-                isEdited = true;
-                invalidate();
-                return true;
+            x_down = event.getX();
+            y_down = event.getY();
+            switch (event.getAction()){
+                case MotionEvent.ACTION_DOWN:
+                    isPressed = true;
+                    path.reset();
+                    path.moveTo(x_down, y_down);
+                    invalidate();
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    isPressed = true;
+                    path.lineTo(x_down, y_down);
+                    isEdited = true;
+                    invalidate();
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    isPressed = false;
+                    invalidate();
+                    return true;
             }
             return super.onTouchEvent(event);
         } else {
@@ -269,7 +309,7 @@ public class TouchMoveImageView extends ImageView {
 
                         //缩放进行检查，不能小于最小宽度，记录最小宽度时的matrixZoom，手指放开时回弹最小规定大小
                         matrixCheck = matrixZoomCheck();
-                        if (matrixCheck == true && !matrixZoomCheck) {
+                        if (matrixCheck && !matrixZoomCheck) {
                             Logger.w("", "ACTION_MOVE   matrixZoomCheck ----  true");
                             matrixZoomCheck = true;
                         }
@@ -294,21 +334,21 @@ public class TouchMoveImageView extends ImageView {
                         Boolean yCheck = matrixDragYCheck(matrixDrag);
 
                         Logger.w("", "ACTION_MOVE  DRAG  xCheck:" + xCheck + "--yCheck:" + yCheck);
-                        if (xCheck == true && yCheck == false) {
+                        if (xCheck && !yCheck) {
                             Logger.w("", "ACTION_MOVE  DRAG 11");
                             matrixTmp.set(savedMatrix);
                             matrixTmp.postTranslate(xMovePosi, event.getY() - y_down);// 平移
                             matrix.set(matrixTmp);
                             invalidate();
                             yMovePosi = event.getY() - y_down;
-                        } else if (xCheck == false && yCheck == true) {
+                        } else if (!xCheck && yCheck) {
                             Logger.w("", "ACTION_MOVE  DRAG 22");
                             matrixTmp.set(savedMatrix);
                             matrixTmp.postTranslate(event.getX() - x_down, yMovePosi);// 平移
                             matrix.set(matrixTmp);
                             invalidate();
                             xMovePosi = event.getX() - x_down;
-                        } else if (xCheck == false && yCheck == false) {
+                        } else if (!xCheck && !yCheck) {
                             Logger.w("", "ACTION_MOVE  DRAG 33");
                             matrixTmp.set(savedMatrix);
                             matrixTmp.postTranslate(event.getX() - x_down, event.getY() - y_down);// 平移
@@ -452,47 +492,7 @@ public class TouchMoveImageView extends ImageView {
             return true;
         }
         return false;
-    }  
-  
-    /*private boolean matrixDragCheck() {  
-        float[] f = new float[9];  
-        matrixTmp.getValues(f);  
-        // 图片4个顶点的坐标  
-        float x1 = f[0] * 0 + f[1] * 0 + f[2];  
-        float y1 = f[3] * 0 + f[4] * 0 + f[5];  
-        float x2 = f[0] * gintama.getWidth() + f[1] * 0 + f[2];  
-        float y2 = f[3] * gintama.getWidth() + f[4] * 0 + f[5];  
-        float x3 = f[0] * 0 + f[1] * gintama.getHeight() + f[2];  
-        float y3 = f[3] * 0 + f[4] * gintama.getHeight() + f[5];  
-        float x4 = f[0] * gintama.getWidth() + f[1] * gintama.getHeight() + f[2];  
-        float y4 = f[3] * gintama.getWidth() + f[4] * gintama.getHeight() + f[5];  
-        // 图片现宽度  
-        double width = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));  
-        // 缩放比率判断  
-        if (width < widthScreen / 1 || width > widthScreen * 5) {  
-        	Logger.w("", "ture--------------");
-            return true;  
-        }  
-        // 出界判断  
-        if ((x1 < widthScreen / 3 && x2 < widthScreen / 3  
-                && x3 < widthScreen / 3 && x4 < widthScreen / 3)  
-                || (x1 > widthScreen * 2 / 3 && x2 > widthScreen * 2 / 3  
-                        && x3 > widthScreen * 2 / 3 && x4 > widthScreen * 2 / 3)  
-                || (y1 < heightScreen / 3 && y2 < heightScreen / 3  
-                        && y3 < heightScreen / 3 && y4 < heightScreen / 3)  
-                || (y1 > heightScreen * 2 / 3 && y2 > heightScreen * 2 / 3  
-                        && y3 > heightScreen * 2 / 3 && y4 > heightScreen * 2 / 3)) {  
-            return true;  
-        }  
-        Logger.w("", "x1:" + x1 + "-x2:" + x2 + "-x3:" + x3 + "-x4:" + x4);
-        Logger.w("", "y1:" + y1 + "-y2:" + y2 + "-y3:" + y3 + "-y4:" + y4);
-        if (x1 > 0 || x2 < widthScreen || y1 > 0 || y3 < widthScreen) {
-
-        	Logger.w("", "ture--------------");
-        	return true;  
-		}
-        return false;  
-    }  */
+    }
 
     // 触碰两点间距离  
     private float spacing(MotionEvent event) {
@@ -544,5 +544,21 @@ public class TouchMoveImageView extends ImageView {
         return bitmap;
     }
 
+    public void recyle(){
+        if(bluredBitmap!=null && !bluredBitmap.isRecycled()){
+            bluredBitmap.recycle();
+            bluredBitmap = null;
+        }
+        if(cursorBitmap!=null&& !cursorBitmap.isRecycled()){
+            cursorBitmap.recycle();
+            cursorBitmap = null;
+        }
+        blurCanvas = null;
+        cursorCanvas = null;
+        paint1 = null;
+        paint = null;
+        clearPaint = null;
+        System.gc();
+    }
 
 }

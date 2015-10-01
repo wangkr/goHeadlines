@@ -54,9 +54,9 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     private ImageView expand_button;             // 扩展按钮
     /*显示封面选项菜单*/
     private boolean ifCoverMenuShown = true;
-
-    /*屏幕方向检测器，用于监测屏幕的旋转*/
-    private ScreenOrnDetector screenOrnDetector;
+//
+//    /*屏幕方向检测器，用于监测屏幕的旋转*/
+//    private ScreenOrnDetector screenOrnDetector;
 
     //手机屏幕的旋转方向
     /*水平方向*/
@@ -72,8 +72,8 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
 
     private int barrier_height = 0;     // 拍照的遮幅高度
     private int curCoverIndex = 0;      // 当前选择的封面
-    private int screenOrn = 90;         // 当前屏幕朝向
-    private int picTakenScreenOrn = 0;  // 拍照时的手机屏幕朝向
+//    private int screenOrn = 90;         // 当前屏幕朝向
+//    private int picTakenScreenOrn = 0;  // 拍照时的手机屏幕朝向
 
     private String TAG = "MainActivity";
     public void onCreate(Bundle savedInstanceState){
@@ -278,22 +278,22 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
         }
     }
     private viCmHandler handler = new viCmHandler(this);
-    // 设置一个屏幕旋转监听器--发生屏幕旋转就重新检测
-    ScreenOrnDetector.OnSrcnListener onSrcnListener = new ScreenOrnDetector.OnSrcnListener() {
-        @Override
-        public void onSrcnRoate(int Orientation) {
-            int last_scrnOrient = screenOrn;
-            if (Orientation>45&&Orientation<135) {
-                screenOrn = ORIENTATION_REV_LAND;
-            }else if (Orientation>135&&Orientation<225){
-                screenOrn = ORIENTATION_REV_PORTRAIT;
-            }else if (Orientation>225&&Orientation<315){
-                screenOrn = ORIENTATION_LAND;
-            }else if ((Orientation>315&&Orientation<360)||(Orientation>=0&&Orientation<45)){
-                screenOrn = ORIENTATION_PORTAIT;
-            }
-        }
-    };
+//     设置一个屏幕旋转监听器--发生屏幕旋转就重新检测
+//    ScreenOrnDetector.OnSrcnListener onSrcnListener = new ScreenOrnDetector.OnSrcnListener() {
+//        @Override
+//        public void onSrcnRoate(int Orientation) {
+//            int last_scrnOrient = screenOrn;
+//            if (Orientation>45&&Orientation<135) {
+//                screenOrn = ORIENTATION_REV_LAND;
+//            }else if (Orientation>135&&Orientation<225){
+//                screenOrn = ORIENTATION_REV_PORTRAIT;
+//            }else if (Orientation>225&&Orientation<315){
+//                screenOrn = ORIENTATION_LAND;
+//            }else if ((Orientation>315&&Orientation<360)||(Orientation>=0&&Orientation<45)){
+//                screenOrn = ORIENTATION_PORTAIT;
+//            }
+//        }
+//    };
 
     // 全局控件点击事件监听
     public void onClick(View v) {
@@ -426,19 +426,19 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
                 flash_light.setVisibility(View.GONE);
             cameraHelper.open(defCamPos);
         }
-
-        screenOrnDetector = new ScreenOrnDetector(this);
-
-        screenOrnDetector.registerOnShakeListener(onSrcnListener);
-        // 启动监听
-        screenOrnDetector.start();
+//
+//        screenOrnDetector = new ScreenOrnDetector(this);
+//
+//        screenOrnDetector.registerOnShakeListener(onSrcnListener);
+//        // 启动监听
+//        screenOrnDetector.start();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         // 置预览回调为空，再关闭预览
         cameraHelper.stop();
-        screenOrnDetector.stop();
+//        screenOrnDetector.stop();
         surface = null;
     }
 
@@ -454,7 +454,7 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     private void takePhoto(){
         // 后置摄像头拍照
         if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            picTakenScreenOrn = screenOrn;
+//            picTakenScreenOrn = screenOrn;
             if (!cameraHelper.focusing) {
                 // 当前为对焦完成状态则快速拍照
                 if(cameraHelper.focuseState)
@@ -465,7 +465,7 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
                 }
             }
         }else if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT){// 前置摄像头拍照
-            picTakenScreenOrn = screenOrn;
+//            picTakenScreenOrn = screenOrn;
             takePhotoThread();
         }
     }
@@ -477,7 +477,7 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
         Utils.startBackgroundJob(MainActivity.this, null, "正在处理...",
                 new Runnable() {
                     public void run() {
-                        cameraHelper.takePhoto(picTakenScreenOrn, barrier_height);
+                        cameraHelper.takePhoto(/*picTakenScreenOrn, barrier_height*/);
                     }
                 }, handler
         );
@@ -504,19 +504,11 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
 
     @Override
     protected void onPause() {
-        // 取消注册监听器
-        if(screenOrnDetector !=null) {
-            screenOrnDetector.stop();
-        }
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        if(screenOrnDetector !=null) {
-            screenOrnDetector.registerOnShakeListener(onSrcnListener);
-            screenOrnDetector.start();
-        }
         setScreen();
         super.onResume();
     }

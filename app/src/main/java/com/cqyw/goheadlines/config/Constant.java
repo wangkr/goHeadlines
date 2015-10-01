@@ -56,6 +56,10 @@ public class Constant {
     public final static String defCamPosKey = "cameraPositionKey";
     // 默认闪光灯选项
     public final static String defFlashLightKey = "flashLightKey";
+    // 是否第一次使用模糊背景功能
+    public final static String isFirstUseBlurKey = "isFUBKey";
+    // 默认模糊画笔大小
+    public final static String penSizeKey = "penSizeKey";
 
     public enum Share_Content{IMAGE,IMAGE_TXT,TXT}
     public enum Content_TYPE{PATH,RESID,SRC}

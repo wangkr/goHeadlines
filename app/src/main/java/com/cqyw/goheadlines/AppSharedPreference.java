@@ -41,4 +41,24 @@ public class AppSharedPreference {
         SharedPreferences camPos = PreferenceManager.getDefaultSharedPreferences(mContext);
         return camPos.getInt(Constant.defFlashLightKey, CameraHelper.FLIGHT_OFF);
     }
+    public static boolean isFirstUseBlur(){
+        SharedPreferences isFUB = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return isFUB.getBoolean(Constant.isFirstUseBlurKey, true);
+    }
+    public static void setFirstUseBlur(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Constant.isFirstUseBlurKey,false);
+        editor.apply();
+    }
+    public static int getPenSizePref(){
+        SharedPreferences penSizePref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return penSizePref.getInt(Constant.penSizeKey, Constant.defPenSize);
+    }
+    public static void setPenSizePref(int penSize){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constant.penSizeKey,penSize);
+        editor.apply();
+    }
 }

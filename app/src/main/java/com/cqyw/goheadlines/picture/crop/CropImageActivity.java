@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.cqyw.goheadlines.AppSharedPreference;
 import com.cqyw.goheadlines.R;
 import com.cqyw.goheadlines.ShareActivity;
 import com.cqyw.goheadlines.picture.MonitoredActivity;
@@ -35,6 +36,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -63,6 +65,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
     public boolean isRadiusChanged = false;
     private boolean showBlurMenu = false;
     private boolean showRotateMenu = false;
+    private boolean isAnimating = false;
 
     private final Handler mHandler = new Handler();
 
@@ -123,17 +126,19 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(Constant.picWidth,Constant.picHeight);
         mImageView = new TouchMoveImageView(this,mBitmap);
         mWaterMark = new ImageView(this);
-        coverIdx = getIntent().getIntExtra(Constant.COVER_INDEX, 0);
-        mWaterMark.setBackgroundResource(Constant.coverResIds[coverIdx]);
         mCrViewLayout.addView(mImageView, params);
         mCrViewLayout.addView(mWaterMark, params);
+        // 设置默认封面
+        coverIdx = getIntent().getIntExtra(Constant.COVER_INDEX, 0);
+        mWaterMark.setBackgroundResource(Constant.coverResIds[coverIdx]);
+        // 设置触摸监听
         mImageView.setOnTouchListener(touchViewListener);
 
         // 初始化seekbar
         radius_size.setMax(Constant.maxRadiusSize);
         pen_size.setMax(Constant.maxPenSize);
         radius_size.setProgress(Constant.defRadiuSize);
-        pen_size.setProgress(Constant.defPenSize);
+        pen_size.setProgress(AppSharedPreference.getPenSizePref());
     }
     // 触摸mImageView弹出菜单消失
     View.OnTouchListener touchViewListener = new View.OnTouchListener() {
@@ -205,6 +210,9 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
     // 监听点击事件
     @Override
     public void onClick(View v) {
+        if(isAnimating){
+            return;
+        }
         switch (v.getId()){
             case R.id.crop_bar_cancell:
                 // 取消
@@ -246,7 +254,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
 
     /**
      * 显示子菜单
-     * @param Id
+     * @param Id 子菜单资源id
      */
     private void showChildMenu(int Id){
         switch (Id){
@@ -264,27 +272,37 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
                         }, handler
                 );
                 crop_child_menu_blur_ll.startAnimation(showAni);
-                Toast.makeText(this,"请用手指擦除不需要模糊的地方",Toast.LENGTH_LONG).show();
+                if(AppSharedPreference.isFirstUseBlur()){
+                    AlertDialog tip = new AlertDialog.Builder(CropImageActivity.this)
+                            .setTitle("提示")
+                            .setMessage("请用手指擦除不需要模糊的地方")
+                            .setPositiveButton("确定",null)
+                            .setCancelable(false)
+                            .create();
+                    tip.show();
+                    AppSharedPreference.setFirstUseBlur();
+                }
                 break;
             case R.id.crop_child_menu_blur_back:
                 pop_dialog_pen_size_rl.setVisibility(View.GONE);
                 pop_dialog_blur_radius_ll.setVisibility(View.GONE);
-                AlertDialog alertDialog = new AlertDialog.Builder(this)
-                        .setTitle("确定返回?")
-                        .setMessage("模糊效果将不被保存,确定返回?")
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                crop_child_menu_blur_ll.startAnimation(hideAni);
-                                /// 取消模糊化效果
-                                mImageView.setBluring(false);
-                            }
-                        })
-                        .setNegativeButton("取消",null)
-                        .create();
-                if(mImageView.isEdited)
+                // 如果进行了编辑就提示是否返回
+                if(mImageView.isEdited) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(this)
+                            .setTitle("确定返回?")
+                            .setMessage("模糊效果将不被保存,确定返回?")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    crop_child_menu_blur_ll.startAnimation(hideAni);
+                                    /// 取消模糊化效果
+                                    mImageView.setBluring(false);
+                                }
+                            })
+                            .setNegativeButton("取消",null)
+                            .create();
                     alertDialog.show();
-                else {
+                } else {
                     crop_child_menu_blur_ll.startAnimation(hideAni);
                     /// 取消模糊化效果
                     mImageView.setBluring(false);
@@ -305,12 +323,14 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
     private void initShowChildMenuAnimation(){
         showAni = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 1, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF,0);
         hideAni = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 1, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF,0);
+        showAni.setInterpolator(new DecelerateInterpolator(2f));
+        hideAni.setInterpolator(new DecelerateInterpolator(2f));
         showAni.setDuration(500);
         hideAni.setDuration(500);
         showAni.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-
+                isAnimating = true;
             }
 
             @Override
@@ -323,6 +343,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
                     crop_child_menu_rotate_ll.clearAnimation();
                     crop_child_menu_rotate_ll.setVisibility(View.VISIBLE);
                 }
+                isAnimating = false;
             }
 
             @Override
@@ -333,7 +354,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         hideAni.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-
+                isAnimating = true;
             }
 
             @Override
@@ -348,6 +369,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
                     crop_child_menu_rotate_ll.setVisibility(View.GONE);
                     showRotateMenu = false;
                 }
+                isAnimating = false;
             }
 
             @Override
@@ -475,7 +497,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
             }
 
             //shark 如果图片太大的话，压缩
-            while ((width / sampleSize > DEFAULT_WIDTH * 2) || (height / sampleSize > DEFAULT_HEIGHT * 2)) {
+            while ((width / sampleSize > Constant.displayWidth) || (height / sampleSize > Constant.displayHeight)) {
                 sampleSize *= 2;
             }
 
@@ -869,9 +891,14 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mImageView.recyle();
         mBitmap.recycle();
         mBitmap = null;
     }
 
-
+    @Override
+    public void finish() {
+        AppSharedPreference.setPenSizePref(mImageView.getPenSize());
+        super.finish();
+    }
 }
