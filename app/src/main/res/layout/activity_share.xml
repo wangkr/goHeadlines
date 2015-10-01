@@ -7,15 +7,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@color/theme_color"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
+        android:background="@color/theme_color">
 
         <ImageView
             android:id="@+id/back"
-            android:layout_width="60dp"
+            android:layout_width="50dp"
             android:layout_height="60dp"
-            android:padding="15dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="20dp"
             android:src="@drawable/btn_back"
             android:layout_centerVertical="true"
             />
@@ -68,7 +67,7 @@
                 android:id="@+id/weibo"
                 android:layout_width="120dp"
                 android:layout_height="50dp"
-                android:layout_marginLeft="30dp"
+                android:layout_marginLeft="40dp"
                 android:gravity="center"
                 android:button="@drawable/sina_radio_icn"
                 android:text="新浪微博"
@@ -90,7 +89,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_width="120dp"
                 android:layout_height="50dp"
-                android:layout_marginLeft="30dp"
+                android:layout_marginLeft="40dp"
                 android:padding="5dp"
                 android:button="@drawable/qzone_radio_icn"
                 android:text="QQ空间"

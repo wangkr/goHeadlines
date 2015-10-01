@@ -49,11 +49,11 @@ public final class CameraUtil {
                 long resoll = ((Size) lhs).height*((Size) lhs).width;
                 long resolr = ((Size) rhs).height*((Size) rhs).width;
                 if(resoll>resolr)
-                    return 1;
+                    return -1;
                 else if(resoll==resolr)
                     return 0;
                 else if(resoll<resolr)
-                    return -1;
+                    return 1;
                 return 0;
             }
         };
@@ -121,8 +121,14 @@ public final class CameraUtil {
      * @return
      */
     public Size getMaxPreviewSize(int cameraPosition){
-        if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition){ return (Size)supportedPreviewSizesFront.get(0).get(KEY_VALUE);}
-        if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition){ return (Size)supportedPreviewSizesBack.get(0).get(KEY_VALUE);}
+        if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition)
+        {
+            return (Size)supportedPreviewSizesFront.get(0).get(KEY_VALUE);
+        }
+        if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition)
+        {
+            return (Size)supportedPreviewSizesBack.get(0).get(KEY_VALUE);
+        }
         return null;
     }
 
@@ -132,8 +138,12 @@ public final class CameraUtil {
      * @return
      */
     public Size getMinPreviewSize(int cameraPosition){
-        if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition){ return (Size)supportedPreviewSizesFront.get(supportedPreviewSizesFront.size()-1).get(KEY_VALUE);}
-        if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition){ return (Size)supportedPreviewSizesBack.get(supportedPreviewSizesBack.size()-1).get(KEY_VALUE);}
+        if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition){
+            return (Size)supportedPreviewSizesFront.get(supportedPreviewSizesFront.size()-1).get(KEY_VALUE);
+        }
+        if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition){
+            return (Size)supportedPreviewSizesBack.get(supportedPreviewSizesBack.size()-1).get(KEY_VALUE);
+        }
         return null;
     }
 
@@ -143,8 +153,12 @@ public final class CameraUtil {
      * @return
      */
     public Size getMaxPictureSize(int cameraPosition){
-        if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition){ return (Size)supportedPictureSizesFront.get(0).get(KEY_VALUE);}
-        if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition){ return (Size)supportedPictureSizesBack.get(0).get(KEY_VALUE);}
+        if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition){
+            return (Size)supportedPictureSizesFront.get(0).get(KEY_VALUE);
+        }
+        if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition){
+            return (Size)supportedPictureSizesBack.get(0).get(KEY_VALUE);
+        }
         return null;
     }
 
@@ -154,8 +168,14 @@ public final class CameraUtil {
      * @return
      */
     public Size getMinPictureSize(int cameraPosition){
-        if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition){ return (Size)supportedPictureSizesFront.get(supportedPictureSizesFront.size()-1).get(KEY_VALUE);}
-        if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition){ return (Size)supportedPictureSizesBack.get(supportedPictureSizesBack.size()-1).get(KEY_VALUE);}
+        if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition)
+        {
+            return (Size)supportedPictureSizesFront.get(supportedPictureSizesFront.size()-1).get(KEY_VALUE);
+        }
+        if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition)
+        {
+            return (Size)supportedPictureSizesBack.get(supportedPictureSizesBack.size()-1).get(KEY_VALUE);
+        }
         return null;
     }
 
@@ -169,15 +189,15 @@ public final class CameraUtil {
         int idx = 0;
         Map<String,Object> map = null;
         if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition){
-            int size = supportedPreviewSizesFront.size();
-            for(int i = size - 1;i >= 0;i--){
+            int size = 0;
+            for(int i = size;i < supportedPreviewSizesFront.size();i++){
                 map = supportedPreviewSizesFront.get(i);
                 if(((String)map.get(KEY_RATIO)).contains(ratio))return (Size)map.get(KEY_VALUE);
             }
         }
         if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition){
-            int size = supportedPreviewSizesBack.size();
-            for(int i = size - 1;i >= 0;i--){
+            int size = 0;
+            for(int i = size;i < supportedPreviewSizesBack.size();i++){
                 map = supportedPreviewSizesBack.get(i);
                 if(((String)map.get(KEY_RATIO)).contains(ratio))return (Size)map.get(KEY_VALUE);
             }
@@ -206,15 +226,15 @@ public final class CameraUtil {
         int idx = 0;
         Map<String,Object> map = null;
         if(Camera.CameraInfo.CAMERA_FACING_FRONT == cameraPosition){
-            int size = supportedPictureSizesFront.size();
-            for(int i = size - 1;i >=0 ;i--){
+            int size = 0;
+            for(int i = size;i < supportedPictureSizesFront.size() ;i++){
                 map = supportedPictureSizesFront.get(i);
                 if(((String)map.get(KEY_RATIO)).contains(ratio))return (Size)map.get(KEY_VALUE);
             }
         }
         if(Camera.CameraInfo.CAMERA_FACING_BACK == cameraPosition){
-            int size = supportedPictureSizesBack.size();
-            for(int i = size - 1;i >=0 ;i--){
+            int size = 0;
+            for(int i = size;i < supportedPictureSizesBack.size() ;i++){
                 map = supportedPictureSizesBack.get(i);
                 if(((String)map.get(KEY_RATIO)).contains(ratio))return (Size)map.get(KEY_VALUE);
             }

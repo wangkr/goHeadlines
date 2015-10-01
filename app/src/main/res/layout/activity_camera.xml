@@ -47,9 +47,8 @@
         android:layout_alignParentBottom="true"
         android:background="@color/theme_color"
         android:paddingLeft="20dp">
-        <com.cqyw.goheadlines.widget.CircleImageView
+        <ImageView
             android:id="@+id/expand_button"
-            app:border_width="0dp"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@mipmap/collapse_icn"
@@ -59,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true">
             <!-- 拍照按钮背景-->
-            <com.cqyw.goheadlines.widget.CircleImageView
+            <com.cqyw.goheadlines.widget.circleview.CircleImageView
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:layout_centerInParent="true"
@@ -68,7 +67,7 @@
                 app:border_width="4dp"
                 />
             <!-- 拍照按钮前景-->
-            <com.cqyw.goheadlines.widget.CircleButton
+            <com.cqyw.goheadlines.widget.circleview.CircleButton
                 android:id="@+id/shutter"
                 android:layout_width="64dp"
                 android:layout_height="64dp"

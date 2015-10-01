@@ -6,11 +6,14 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.widget.ImageView;
+
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -271,4 +274,34 @@ public class BitmapLoader
     localLocation.setLongitude(Constant.GPS.lng);
     loc2Exif(localLocation, paramString);
   }*/
+  public static byte[] bmpToByteArray(final Bitmap bmp, final boolean needRecycle) {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    bmp.compress(Bitmap.CompressFormat.JPEG, 100, output);
+    if (needRecycle) {
+      bmp.recycle();
+    }
+
+    byte[] result = output.toByteArray();
+    try {
+      output.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * 图片水平翻转
+   * @param bmp
+   * @return
+   */
+  public Bitmap convertBmp(Bitmap bmp) {
+    int w = bmp.getWidth();
+    int h = bmp.getHeight();
+
+    Matrix matrix = new Matrix();
+    matrix.postScale(-1, 1); // 镜像水平翻转
+    return Bitmap.createBitmap(bmp, 0, 0, w, h, matrix, true);
+  }
 }

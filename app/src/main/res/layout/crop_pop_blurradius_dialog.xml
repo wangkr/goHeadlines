@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:background="@drawable/rounded_stroke_theme_bk">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="调整背景模糊程度（向右最模糊）"
+        android:textColor="@color/hint_color"
+        android:textSize="15sp"/>
+    <SeekBar
+        android:id="@+id/seekBar_blur_radius"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="200"
+        />
+</LinearLayout>

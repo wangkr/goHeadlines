@@ -11,6 +11,7 @@ import com.cqyw.goheadlines.config.Constant;
 import com.cqyw.goheadlines.util.FileUtils;
 import com.cqyw.goheadlines.util.Logger;
 
+
 /**
  * Created by Kairong on 2015/9/23.
  * mail:wangkrhust@gmail.com
@@ -22,6 +23,8 @@ public class WelcomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+        // 初始化用户首选项参数
+        new AppSharedPreference().init(getApplicationContext());
         // 删除App缓存目录
         FileUtils fileUtils = new FileUtils(getApplicationContext());
         fileUtils.deleteCacheDir();

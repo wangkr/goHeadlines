@@ -17,10 +17,17 @@ import com.cqyw.goheadlines.config.Constant;
 import com.cqyw.goheadlines.util.BitmapLoader;
 import com.cqyw.goheadlines.util.FileUtils;
 import com.cqyw.goheadlines.util.Logger;
+import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.sdk.modelmsg.WXImageObject;
+import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 
 /**
  * Created by Kairong on 2015/9/22.
@@ -34,7 +41,10 @@ public class ShareActivity extends Activity implements RadioButton.OnCheckedChan
     private RadioButton weibo,pengyouquan,qzone;
     private ImageView showImageView;
     private int checkedTxtColor,uncheckedTxtColor;
+    private String sharePlatform;
     private int showWidth = 360,showHeight = 480;
+
+    private IWXAPI iwxapi;
 
     private boolean isFirstCheck = true;
     private boolean isSaved = false;
@@ -42,8 +52,10 @@ public class ShareActivity extends Activity implements RadioButton.OnCheckedChan
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
-
         fileUtils = new FileUtils(this);
+
+        iwxapi = WXAPIFactory.createWXAPI(this,Constant.WX_APP_ID,true);
+        iwxapi.registerApp(Constant.WX_APP_ID);
 
         wmPath = getIntent().getParcelableExtra(Constant.WM_IMAGE_URI);
         showImage = BitmapLoader.decodeSampledBitmapFromUri(getContentResolver(),wmPath,showWidth,showHeight);
@@ -70,6 +82,7 @@ public class ShareActivity extends Activity implements RadioButton.OnCheckedChan
 
         findViewById(R.id.back).setOnClickListener(this);
         findViewById(R.id.save).setOnClickListener(this);
+        shareBtn.setOnClickListener(this);
     }
 
     @Override
@@ -82,12 +95,21 @@ public class ShareActivity extends Activity implements RadioButton.OnCheckedChan
         switch (buttonView.getId()){
             case R.id.weibo:
                 weibo.setTextColor(isChecked?checkedTxtColor:uncheckedTxtColor);
+                if(isChecked){
+                    sharePlatform = Constant.WEIBO;
+                }
                 break;
             case R.id.pengyouquan:
                 pengyouquan.setTextColor(isChecked?checkedTxtColor:uncheckedTxtColor);
+                if(isChecked){
+                    sharePlatform = Constant.WEIXIN;
+                }
                 break;
             case R.id.qzone:
                 qzone.setTextColor(isChecked?checkedTxtColor:uncheckedTxtColor);
+                if(isChecked){
+                    sharePlatform = Constant.QZONE;
+                }
                 break;
             default:
                 break;
@@ -122,6 +144,40 @@ public class ShareActivity extends Activity implements RadioButton.OnCheckedChan
                     e.printStackTrace();
                 }
                 break;
+            case R.id.share:
+                if(isFirstCheck||wmPath.getPath()==null||wmPath.getPath().equals("")){
+                    return;
+                }
+                Toast.makeText(this,sharePlatform,Toast.LENGTH_SHORT).show();
+                shareToSocialize(sharePlatform,wmPath.getPath());
+                break;
+            default:
+                break;
+
         }
+    }
+    private void shareToSocialize(String paltform,String imagePath){
+        if(paltform.equals(Constant.WEIXIN)){
+
+            WXImageObject imgObj = new WXImageObject();
+            imgObj.setImagePath(imagePath);
+
+            WXMediaMessage msg = new WXMediaMessage();
+            msg.mediaObject = imgObj;
+
+            Bitmap bmp = BitmapFactory.decodeFile(imagePath);
+            Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, showWidth, showHeight, true);
+            bmp.recycle();
+            msg.thumbData = BitmapLoader.bmpToByteArray(thumbBmp, true);
+
+            SendMessageToWX.Req req = new SendMessageToWX.Req();
+            req.transaction = buildTransaction("img");
+            req.message = msg;
+            req.scene =  SendMessageToWX.Req.WXSceneTimeline;
+            iwxapi.sendReq(req);
+        }
+    }
+    private String buildTransaction(final String type) {
+        return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
 }

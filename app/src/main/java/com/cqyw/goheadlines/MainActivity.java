@@ -1,9 +1,6 @@
 package com.cqyw.goheadlines;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -11,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -29,12 +25,13 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.cqyw.goheadlines.camera.CameraHelper;
-import com.cqyw.goheadlines.camera.ScrnOrientDetector;
+import com.cqyw.goheadlines.camera.ScreenOrnDetector;
 import com.cqyw.goheadlines.config.Constant;
+import com.cqyw.goheadlines.config.Utils;
+import com.cqyw.goheadlines.picture.MonitoredActivity;
+import com.cqyw.goheadlines.picture.crop.CropImageActivity;
 import com.cqyw.goheadlines.util.Logger;
-import com.cqyw.goheadlines.widget.CircleImageView;
 import com.cqyw.goheadlines.widget.horizonListView.*;
-import com.cqyw.goheadlines.widget.picture.CropImageActivity;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -47,28 +44,19 @@ import java.util.Map;
  * Created by Kairong on 2015/9/20.
  * mail:wangkrhust@gmail.com
  */
-public class MainActivity extends Activity implements SurfaceHolder.Callback,View.OnClickListener{
+public class MainActivity extends MonitoredActivity implements SurfaceHolder.Callback,View.OnClickListener{
 
     private CameraHelper cameraHelper;
     private SurfaceView surface;
-    private int scrnOrient = 90;                 // 当前屏幕朝向
-    private int picTakenScrnOrient = 0;          // 拍照时的手机屏幕朝向
-
     private ImageView focus_view;                // 显示对焦光标
-    private ImageView cover_view;                // 封面图片
     private ImageView flash_light;               // 闪光灯
-    private CircleImageView expand_button;       // 扩展按钮
-    private ProgressDialog progressDialog;
-    /*停止保存照片线程*/
-    private boolean ifStopCPThread = false;
+    private ImageView cover_view;                // 封面图片
+    private ImageView expand_button;             // 扩展按钮
     /*显示封面选项菜单*/
-    private boolean ifCoverListShown = true;
+    private boolean ifCoverMenuShown = true;
 
     /*屏幕方向检测器，用于监测屏幕的旋转*/
-    private ScrnOrientDetector scrnOrientDetector;
-
-    private final static int STOP_PROGRESS = 3238;
-    public final static int SAVE_PICTURE_DONE = 3239;
+    private ScreenOrnDetector screenOrnDetector;
 
     //手机屏幕的旋转方向
     /*水平方向*/
@@ -82,10 +70,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
 
     enum ANIM_TYPE{SCALE,HIDE};
 
-    /*拍照遮幅高度*/
-    private int barrier_height = 0;
-    /*当前选择的封面*/
-    private int curCoverIndex = 0;
+    private int barrier_height = 0;     // 拍照的遮幅高度
+    private int curCoverIndex = 0;      // 当前选择的封面
+    private int screenOrn = 90;         // 当前屏幕朝向
+    private int picTakenScreenOrn = 0;  // 拍照时的手机屏幕朝向
 
     private String TAG = "MainActivity";
     public void onCreate(Bundle savedInstanceState){
@@ -117,14 +105,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
 
         focus_view = (ImageView)findViewById(R.id.focus_view);
         cover_view = (ImageView)findViewById(R.id.cover);
-        expand_button = (CircleImageView)findViewById(R.id.expand_button);
+        expand_button = (ImageView)findViewById(R.id.expand_button);
         flash_light = (ImageView)findViewById(R.id.flash_light);
 
         // 设置监听
         expand_button.setOnClickListener(this);
+        flash_light.setOnClickListener(this);
         findViewById(R.id.shutter).setOnClickListener(this);
         findViewById(R.id.switch_camera).setOnClickListener(this);
-        findViewById(R.id.flash_light).setOnClickListener(this);
 
 
         int camera_top_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height);
@@ -140,6 +128,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
         // 设置“点击聚焦”和拍照模式菜单弹回
         surface.setOnTouchListener(onTouchListener);
 
+        // 初始化封面选项菜单
         String[] coverTitles = getResources().getStringArray(R.array.cover_title);
         HorizontalListViewAdapter coverListAdater = new HorizontalListViewAdapter(this,Constant.coverIcnIds,coverTitles);
         coverList.setAdapter(coverListAdater);
@@ -151,10 +140,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
             flash_light.setVisibility(View.GONE);
         }else {
             // 读取闪光灯默认选项
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            int defFLightMode = sharedPreferences.getInt(Constant.defFlashLightKey,CameraHelper.FLIGHT_OFF);
-            cameraHelper.flashLightMode = defFLightMode;
-            setFlashLightView(defFLightMode);
+            cameraHelper.flashLightMode = AppSharedPreference.getFlashLight();
+            setFlashLightView(AppSharedPreference.getFlashLight());
         }
         // 切换摄像头图标的显示
         findViewById(R.id.switch_camera).setVisibility(cameraHelper.cameraCount < 2?View.GONE:View.VISIBLE);
@@ -175,7 +162,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
             Rect surfaceRect = new Rect();
             view.getDrawingRect(surfaceRect);
             int focus_view_size = getResources().getDimensionPixelSize(R.dimen.focus_view_size);
-            int photo_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height)+Math.round(focus_view_size/2) ;
+            int photo_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height)+Math.round(focus_view_size/2);
             int bottom_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_bottom_bar_height)+Math.round(focus_view_size/2);
             surfaceRect.top += photo_bar_height;
             surfaceRect.bottom -= bottom_bar_height;
@@ -184,6 +171,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
             float m_X = motionEvent.getX(0);
             float m_Y = motionEvent.getY(0);
             if (cameraHelper.isPreviewing
+                    && !cameraHelper.focusing
                     && cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_BACK
                     && surfaceRect.contains((int) m_X, (int) m_Y)) {
                 RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(focus_view.getLayoutParams());
@@ -264,15 +252,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
                         theActivity.startFocusViewAnimation(ANIM_TYPE.HIDE);
                     }
                     break;
-                case STOP_PROGRESS:
-                    if(theActivity.progressDialog!=null) {
-                        theActivity.progressDialog.dismiss();
-                    }
-                    break;
-                case SAVE_PICTURE_DONE:
-                    if(theActivity.progressDialog!=null) {
-                        theActivity.progressDialog.dismiss();
-                    }
+                case CameraHelper.SAVE_PICTURE_DONE:
                     Bundle childMsgBundle = msg.getData();
                     String savedPath = childMsgBundle.getString(Constant.childMsgKey);
                     Logger.d(theActivity.TAG, "send file:" + savedPath);
@@ -286,6 +266,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
                     intent.putExtra(Constant.COVER_INDEX, theActivity.curCoverIndex);
                     theActivity.startActivity(intent);
                     break;
+                case CameraHelper.SAVED_ERROR:
+                    theActivity.cameraHelper.restartPreview();
+                    Toast.makeText(theActivity,"发生错误,请重新拍照!",Toast.LENGTH_SHORT).show();
+                    break;
                 case CameraHelper.MSG_TAKE_PICTURE:
                     theActivity.takePhoto();
                     break;
@@ -295,18 +279,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
     }
     private viCmHandler handler = new viCmHandler(this);
     // 设置一个屏幕旋转监听器--发生屏幕旋转就重新检测
-    ScrnOrientDetector.OnSrcnListener onSrcnListener = new ScrnOrientDetector.OnSrcnListener() {
+    ScreenOrnDetector.OnSrcnListener onSrcnListener = new ScreenOrnDetector.OnSrcnListener() {
         @Override
         public void onSrcnRoate(int Orientation) {
-            int last_scrnOrient = scrnOrient;
+            int last_scrnOrient = screenOrn;
             if (Orientation>45&&Orientation<135) {
-                scrnOrient = ORIENTATION_REV_LAND;
+                screenOrn = ORIENTATION_REV_LAND;
             }else if (Orientation>135&&Orientation<225){
-                scrnOrient = ORIENTATION_REV_PORTRAIT;
+                screenOrn = ORIENTATION_REV_PORTRAIT;
             }else if (Orientation>225&&Orientation<315){
-                scrnOrient = ORIENTATION_LAND;
+                screenOrn = ORIENTATION_LAND;
             }else if ((Orientation>315&&Orientation<360)||(Orientation>=0&&Orientation<45)){
-                scrnOrient = ORIENTATION_PORTAIT;
+                screenOrn = ORIENTATION_PORTAIT;
             }
         }
     };
@@ -318,19 +302,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
         {
             case R.id.switch_camera:
                 // 切换前后摄像头
-                cameraHelper.switchCamera();
-                // 写入用户最近选择
-                SharedPreferences lastCamPos = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = lastCamPos.edit();
-                editor.putInt(Constant.defCamPosKey,cameraHelper.camera_position);
-                editor.apply();
-                if(cameraHelper.camera_position==Camera.CameraInfo.CAMERA_FACING_BACK){
-                    flash_light.setVisibility(Constant.hasFlashLight?View.VISIBLE:View.GONE);
-                    cameraHelper.autoFocus(true,false);
-                }else{
-                    flash_light.setVisibility(View.GONE);
-                    focus_view.setVisibility(View.GONE);
-                }
+                switchCamera();
                 break;
             case R.id.shutter:
                 // 拍照
@@ -346,19 +318,34 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
                 break;
         }
     }
+
+    /**
+     * 切换摄像头
+     */
+    private void switchCamera(){
+        cameraHelper.switchCamera();
+        AppSharedPreference.setCameraPos(cameraHelper.camera_position);
+        if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_BACK){
+            flash_light.setVisibility(Constant.hasFlashLight?View.VISIBLE:View.GONE);
+            cameraHelper.autoFocus(true,false);
+        }else{
+            flash_light.setVisibility(View.GONE);
+            focus_view.setVisibility(View.GONE);
+        }
+    }
     /**
      * 显示/隐藏 封面选项面板
      */
     private void showCoverList(){
         final RelativeLayout cover_icn_rl = (RelativeLayout)findViewById(R.id.cover_icn_rl);
-        if(ifCoverListShown){
+        if(ifCoverMenuShown){
             expand_button.setImageResource(R.mipmap.expand_icn);
             cover_icn_rl.setVisibility(View.INVISIBLE);
-            ifCoverListShown = false;
+            ifCoverMenuShown = false;
         }else{
             expand_button.setImageResource(R.mipmap.collapse_icn);
             cover_icn_rl.setVisibility(View.VISIBLE);
-            ifCoverListShown = true;
+            ifCoverMenuShown = true;
         }
     }
     /**
@@ -400,10 +387,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
                 break;
         }
         // 写入用户闪光灯首选项
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(Constant.defFlashLightKey,mode);
-        editor.apply();
+        AppSharedPreference.setFlashLight(mode);
     }
     /**
      * 得到裁剪宽高比选项菜单内容
@@ -433,30 +417,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        // 读取默认摄像头选项
-        SharedPreferences cameraPos = PreferenceManager.getDefaultSharedPreferences(this);
         // 如果只有一个摄像头，则默认打开后置摄像头，否则打开前置摄像头
         if(cameraHelper.cameraCount == 1) {
             cameraHelper.open();
         } else if(cameraHelper.cameraCount >=2){
-            int defCamPos = cameraPos.getInt(Constant.defCamPosKey, Camera.CameraInfo.CAMERA_FACING_FRONT);
+            int defCamPos = AppSharedPreference.getCameraPos();
             if (defCamPos == Camera.CameraInfo.CAMERA_FACING_FRONT)
                 flash_light.setVisibility(View.GONE);
             cameraHelper.open(defCamPos);
         }
 
-        scrnOrientDetector = new ScrnOrientDetector(this);
+        screenOrnDetector = new ScreenOrnDetector(this);
 
-        scrnOrientDetector.registerOnShakeListener(onSrcnListener);
+        screenOrnDetector.registerOnShakeListener(onSrcnListener);
         // 启动监听
-        scrnOrientDetector.start();
+        screenOrnDetector.start();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         // 置预览回调为空，再关闭预览
         cameraHelper.stop();
-        scrnOrientDetector.stop();
+        screenOrnDetector.stop();
         surface = null;
     }
 
@@ -470,40 +452,40 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
      * 带自动对焦功能的拍照
      */
     private void takePhoto(){
+        // 后置摄像头拍照
         if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            picTakenScrnOrient = scrnOrient;
+            picTakenScreenOrn = screenOrn;
             if (!cameraHelper.focusing) {
                 // 当前为对焦完成状态则快速拍照
                 if(cameraHelper.focuseState)
                     takePhotoThread();
-                else{ // 否则自动对焦一次，等到对焦完成，再拍照
+                else{
+                    // 否则自动对焦一次，等到对焦完成，再拍照
                     cameraHelper.autoFocus(true,true);
                 }
             }
-        }else if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT){
-            picTakenScrnOrient = scrnOrient;
+        }else if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT){// 前置摄像头拍照
+            picTakenScreenOrn = screenOrn;
             takePhotoThread();
         }
     }
+
+    /**
+     * 拍照线程
+     */
     private void takePhotoThread(){
-        progressDialog = ProgressDialog.show(this, null, "正在处理...", true, false);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                cameraHelper.takePhoto(picTakenScrnOrient, barrier_height);
-                while (!ifStopCPThread) {
-                    if (cameraHelper.save_photo_state == CameraHelper.SAVED_PHOTO) {
-                        break;
-                    } else if (cameraHelper.save_photo_state == CameraHelper.SAVED_ERROR) {//保存发生错误
-                        handler.sendEmptyMessage(STOP_PROGRESS);
-                        cameraHelper.restartPreview();
-                        break;
+        Utils.startBackgroundJob(MainActivity.this, null, "正在处理...",
+                new Runnable() {
+                    public void run() {
+                        cameraHelper.takePhoto(picTakenScreenOrn, barrier_height);
                     }
-                }
-            }
-        }).start();
+                }, handler
+        );
     }
 
+    /**
+     * 设置屏幕高亮
+     */
     private void setScreen(){
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);//设置全屏
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -515,7 +497,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode!=RESULT_OK){
+        if(resultCode!=RESULT_OK) {
             Toast.makeText(getApplicationContext(),"没有选择任何图片!",Toast.LENGTH_SHORT).show();
         }
     }
@@ -523,17 +505,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
     @Override
     protected void onPause() {
         // 取消注册监听器
-        if(scrnOrientDetector!=null) {
-            scrnOrientDetector.stop();
+        if(screenOrnDetector !=null) {
+            screenOrnDetector.stop();
         }
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        if(scrnOrientDetector!=null) {
-            scrnOrientDetector.registerOnShakeListener(onSrcnListener);
-            scrnOrientDetector.start();
+        if(screenOrnDetector !=null) {
+            screenOrnDetector.registerOnShakeListener(onSrcnListener);
+            screenOrnDetector.start();
         }
         setScreen();
         super.onResume();
@@ -544,15 +526,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,Vie
     @Override
     public void onBackPressed() {
         this.finish();
-        System.gc();
-
     }
 
     @Override
     public void finish() {
-        // 停止等待动画
-        handler.sendEmptyMessage(STOP_PROGRESS);
-        ifStopCPThread = true;
+        System.gc();
         super.finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

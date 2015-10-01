@@ -19,6 +19,25 @@ import java.security.NoSuchAlgorithmException;
  * mail:wangkrhust@gmail.com
  */
 public class Constant {
+    public static final String WX_APP_ID = "wxb32ce51a7fd0e394";
+    public static final String WEIXIN = "WeiXin";
+    public static final String WEIBO = "WeiBo";
+    public static final String QZONE = "QZone";
+    /**
+     * 模糊半径radius 和 模糊擦除笔头大小pen
+     */
+    public static final int defRadiuSize = 24;
+    public static final int maxRadiusSize = 100;
+    public static final int defPenSize = 150;
+    public static final int maxPenSize = 500;
+    public static final float blurScaleFactor = 4;
+    // 阶梯式模糊半径阶段
+    public static final int radius_stage1 = 40;
+    public static final int radius_stage2 = 70;
+    public static final int radius_stage3 = 90;
+    public static final float[] radius_rate = {0.50f, 0.56f, 0.66f, 0.91f};
+    // 是否显示【模糊背景菜单】
+    public static final boolean blur_menu_shown = true;
     /**
      * 设备屏幕宽度高度，MainActivity里面设置
      */
@@ -26,7 +45,6 @@ public class Constant {
     public static int displayHeight = 0;
     public static int picWidth = 0;
     public static int picHeight = 0;
-    public static int statusBarHeight = 0;
     public static float scale = 0;					//屏幕密度
     public static boolean hasFlashLight = false;
     public static boolean canAutoFocus = false;
@@ -39,6 +57,8 @@ public class Constant {
     // 默认闪光灯选项
     public final static String defFlashLightKey = "flashLightKey";
 
+    public enum Share_Content{IMAGE,IMAGE_TXT,TXT}
+    public enum Content_TYPE{PATH,RESID,SRC}
     /**
      * 指定发布图片的宽度,单位px
      */
@@ -60,14 +80,14 @@ public class Constant {
      * 封面水印文件资源id
      */
     public final static int[] coverResIds = {R.drawable.nansheng,R.drawable.yizhou,R.drawable.science,R.drawable.nature
-    ,R.drawable.kantianxia,R.drawable.jingjixueren,R.drawable.fubusi,R.drawable.time,R.drawable.easy
+    ,R.drawable.kantianxia,R.drawable.muscle,R.drawable.jingjixueren,R.drawable.fubusi,R.drawable.time,R.drawable.easy
     ,R.drawable.ruili,R.drawable.playboy,R.drawable.erciyuan,R.drawable.yilin,R.drawable.nba
     ,R.drawable.nanfangzhoumo,R.drawable.shangtoutiao};
     /**
-     * 封面水印文件ICON
+     * 封面水印文件Icon id
      */
     public final static int[] coverIcnIds = {R.mipmap.nanshengnvsheng,R.mipmap.yizhou,R.mipmap.science,R.mipmap.nature
-            ,R.mipmap.kantianxia,R.mipmap.jingjixueren,R.mipmap.fubusi,R.mipmap.time,R.mipmap.easy
+            ,R.mipmap.kantianxia,R.mipmap.muscle,R.mipmap.jingjixueren,R.mipmap.fubusi,R.mipmap.time,R.mipmap.easy
             ,R.mipmap.ruili,R.mipmap.playboy,R.mipmap.erciyuan,R.mipmap.yilin,R.mipmap.nba
             ,R.mipmap.nanfangzhoumo,R.mipmap.shangtoutiao};
 

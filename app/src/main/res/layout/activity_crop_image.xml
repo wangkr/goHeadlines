@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="#888888">
     <LinearLayout
         android:id="@+id/crop_top_bar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/crop_bar_height"
         android:background="@color/activity_camera_bar_bk"
         android:gravity="center">
         <TextView
@@ -27,5 +27,22 @@
         android:layout_height="wrap_content"
         >
     </RelativeLayout>
+
+    <include layout="@layout/crop_pop_blurradius_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dip"
+        android:layout_marginLeft="1dip"
+        android:layout_marginRight="1dip"
+        android:layout_above="@id/crop_bottom_bar"
+        android:id="@+id/crop_pop_dialg_blurradius"/>
+    <include layout="@layout/crop_pop_pensize_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/crop_pop_pensize_layout_height"
+        android:layout_marginBottom="1dip"
+        android:layout_marginLeft="1dip"
+        android:layout_marginRight="1dip"
+        android:layout_above="@id/crop_bottom_bar"
+        android:id="@+id/crop_pop_dialg_pensize"/>
 
 </RelativeLayout>
