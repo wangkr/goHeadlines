@@ -237,12 +237,12 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
             case R.id.crop_child_menu_rotate:
                 mImageView.rotate(90);
                 // 旋转功能使用统计
-                MobclickAgent.onEvent(this,Constant.stat_rotate_menu,Constant.stat_xuanzhuan);
+                MobclickAgent.onEvent(this,Constant.stat_xuanzhuan);
                 break;
             case R.id.crop_child_menu_fanzhuan:
                 mImageView.flip_Horizon();
                 // 翻转功能使用统计
-                MobclickAgent.onEvent(this,Constant.stat_rotate_menu,Constant.stat_fanzhuan);
+                MobclickAgent.onEvent(this,Constant.stat_fanzhuan);
                 break;
             default:
 

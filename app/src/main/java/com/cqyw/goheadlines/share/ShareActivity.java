@@ -191,7 +191,7 @@ public class ShareActivity extends MonitoredActivity implements RadioButton.OnCh
                 }
                 isSaved = true;
                 // 统计保存次数
-                MobclickAgent.onEvent(this,Constant.stat_share_fun,Constant.stat_save_picture);
+                MobclickAgent.onEvent(this,Constant.stat_save_picture);
                 break;
             case R.id.share:
 //                if(isFirstCheck||wmPath.getPath()==null||wmPath.getPath().equals("")){
@@ -201,7 +201,7 @@ public class ShareActivity extends MonitoredActivity implements RadioButton.OnCh
 //                shareToSocialize(sharePlatform,wmPath.getPath());
 
                 // 统计分享次数
-                MobclickAgent.onEvent(this,Constant.stat_share_fun,Constant.stat_share_picture);
+                MobclickAgent.onEvent(this,Constant.stat_share_picture);
                 Intent shareIntent = new Intent();
                 shareIntent.setAction(Intent.ACTION_SEND);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, wmPath);

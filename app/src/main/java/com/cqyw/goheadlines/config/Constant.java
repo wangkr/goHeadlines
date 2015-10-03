@@ -41,17 +41,13 @@ public class Constant {
     // 是否显示【模糊背景菜单】
     public static final boolean blur_menu_shown = true;
     // 统计用户使用app的事件
-    public static final String stat_camera_type = "Camera_Type";
     public static final String stat_camera_type_front = "Front";
     public static final String stat_camera_type_back = "Back";
-    public static final String stat_cover_type = "Cover_Type";
     public static final String stat_pen_size = "Pen_Size";
     public static final String stat_blur_radius = "Blur_Radius";
     public static final String stat_blur_save_times = "Blur_Save";
-    public static final String stat_rotate_menu = "Rotate_Flip";
     public static final String stat_fanzhuan = "Fanzhuan";
     public static final String stat_xuanzhuan = "Xuanzhuan";
-    public static final String stat_share_fun = "Share_Save";
     public static final String stat_save_picture = "Share";
     public static final String stat_share_picture = "Save";
     /**

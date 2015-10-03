@@ -61,15 +61,15 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
 //    /*屏幕方向检测器，用于监测屏幕的旋转*/
 //    private ScreenOrnDetector screenOrnDetector;
 
-    //手机屏幕的旋转方向
-    /*水平方向*/
-    public static final int ORIENTATION_LAND = 0;
-    /*竖直方向*/
-    public static final int ORIENTATION_PORTAIT = 90;
-    /*反方向水平方向*/
-    public static final int ORIENTATION_REV_LAND = 180;
-    /*反方向竖直方向*/
-    public static final int ORIENTATION_REV_PORTRAIT = 270;
+//    //手机屏幕的旋转方向
+//    /*水平方向*/
+//    public static final int ORIENTATION_LAND = 0;
+//    /*竖直方向*/
+//    public static final int ORIENTATION_PORTAIT = 90;
+//    /*反方向水平方向*/
+//    public static final int ORIENTATION_REV_LAND = 180;
+//    /*反方向竖直方向*/
+//    public static final int ORIENTATION_REV_PORTRAIT = 270;
 
     enum ANIM_TYPE{SCALE,HIDE};
 
@@ -483,12 +483,12 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     private void takePhotoThread(){
         // 统计拍照的摄像头
         if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT){
-            MobclickAgent.onEvent(this,Constant.stat_camera_type,Constant.stat_camera_type_front);
+            MobclickAgent.onEvent(this,Constant.stat_camera_type_front);
         } else {
-            MobclickAgent.onEvent(this,Constant.stat_camera_type,Constant.stat_camera_type_back);
+            MobclickAgent.onEvent(this,Constant.stat_camera_type_back);
         }
         // 统计封面的种类使用
-        MobclickAgent.onEvent(this,Constant.stat_cover_type,stat_cover_items[curCoverIndex]);
+        MobclickAgent.onEvent(this,stat_cover_items[curCoverIndex]);
 
         Utils.startBackgroundJob(MainActivity.this, null, "正在处理...",
                 new Runnable() {
@@ -538,8 +538,8 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
 
     @Override
     public void finish() {
-        System.gc();
         super.finish();
+        System.gc();
     }
 
     @Override
