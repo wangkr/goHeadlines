@@ -8,6 +8,7 @@ import android.view.Display;
 
 import com.cqyw.goheadlines.camera.CameraUtil;
 import com.cqyw.goheadlines.config.Constant;
+import com.cqyw.goheadlines.picture.MonitoredActivity;
 import com.cqyw.goheadlines.util.FileUtils;
 import com.cqyw.goheadlines.util.Logger;
 
@@ -16,7 +17,7 @@ import com.cqyw.goheadlines.util.Logger;
  * Created by Kairong on 2015/9/23.
  * mail:wangkrhust@gmail.com
  */
-public class WelcomeActivity extends Activity {
+public class WelcomeActivity extends MonitoredActivity {
 
     private String TAG = "WelcomeActivity";
     @Override

@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -32,6 +33,7 @@ import com.cqyw.goheadlines.picture.MonitoredActivity;
 import com.cqyw.goheadlines.picture.crop.CropImageActivity;
 import com.cqyw.goheadlines.util.Logger;
 import com.cqyw.goheadlines.widget.horizonListView.*;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -54,6 +56,7 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     private ImageView expand_button;             // 扩展按钮
     /*显示封面选项菜单*/
     private boolean ifCoverMenuShown = true;
+    private String[] stat_cover_items;
 //
 //    /*屏幕方向检测器，用于监测屏幕的旋转*/
 //    private ScreenOrnDetector screenOrnDetector;
@@ -78,7 +81,9 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     private String TAG = "MainActivity";
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        // 设置全屏
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
         initCameraHelper();
         // 初始化视图
@@ -145,6 +150,8 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
         }
         // 切换摄像头图标的显示
         findViewById(R.id.switch_camera).setVisibility(cameraHelper.cameraCount < 2?View.GONE:View.VISIBLE);
+
+        stat_cover_items = getResources().getStringArray(R.array.stat_cover_item);
 
     }
     private AdapterView.OnItemClickListener onItemClickListener_coverList = new AdapterView.OnItemClickListener() {
@@ -474,6 +481,15 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
      * 拍照线程
      */
     private void takePhotoThread(){
+        // 统计拍照的摄像头
+        if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT){
+            MobclickAgent.onEvent(this,Constant.stat_camera_type,Constant.stat_camera_type_front);
+        } else {
+            MobclickAgent.onEvent(this,Constant.stat_camera_type,Constant.stat_camera_type_back);
+        }
+        // 统计封面的种类使用
+        MobclickAgent.onEvent(this,Constant.stat_cover_type,stat_cover_items[curCoverIndex]);
+
         Utils.startBackgroundJob(MainActivity.this, null, "正在处理...",
                 new Runnable() {
                     public void run() {

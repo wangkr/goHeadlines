@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/app/libs/arm64-v8a" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/libs/armeabi" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/libs/armeabi-v7a" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/libs/mips" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/libs/mips64" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/libs/x86" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/libs/x86_64" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/cqyw/goheadlines/AppSharedPreference.java" charset="UTF-8" />
@@ -71,19 +78,26 @@
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/weibo_icn_checked.png" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/easy.jpg" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/erciyuan.jpg" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/fubusi.jpg" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/fubusi.jpg" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/jingjixueren.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/jingjixueren.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/kantianxia.jpg" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/kantianxia.jpg" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/muscle.jpg" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/nanfangzhoumo.jpg" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/nanshengnvsheng.jpg" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/nature.jpg" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/nba.jpg" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/nba.jpg" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/playboy.jpg" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/playboy.jpg" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/ruili.jpg" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/science.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/science.png" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/time.jpg" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/yilin.jpg" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/yilin.jpg" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/yizhou.jpg" charset="GBK" />
     <file url="PROJECT" charset="UTF-8" />
   </component>

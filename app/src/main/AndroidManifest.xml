@@ -1,12 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cqyw.goheadlines"
     android:versionCode="1"
-    android:versionName="1.0">
+    android:versionName="1.0.0">
 
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
 
-    <!-- 鎵撳紑Camera鐨勬潈闄� -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.autofocus"/>
@@ -28,39 +27,26 @@
     <application android:allowBackup="true" android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme">
 
-        <!--微信分享回调 -->
-        <!--<activity-->
-            <!--android:name=".wxapi.WXEntryActivity"-->
-            <!--android:theme="@android:style/Theme.Translucent.NoTitleBar"-->
-            <!--android:configChanges="keyboardHidden|orientation|screenSize"-->
-            <!--android:exported="true"-->
-            <!--android:screenOrientation="portrait" />-->
-
         <activity android:name=".WelcomeActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"/>
 
-        </activity>
-        <activity android:name=".ShareActivity">
-
-        </activity>
-        <activity android:name=".picture.crop.CropImageActivity">
-
-        </activity>
-        <!-- 微信分享-->
-
-        <receiver
-            android:name=".share.weixin.AppRegister"
-            android:permission="com.tencent.mm.plugin.permission.SEND" >
+        <activity android:name=".share.ShareActivity">
             <intent-filter>
-                <action android:name="com.tencent.mm.plugin.openapi.Intent.ACTION_REFRESH_WXAPP" />
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
             </intent-filter>
-        </receiver>
-        <!-- 微信分享-->
+        </activity>
+
+        <activity android:name=".picture.crop.CropImageActivity"/>
+
+        <meta-data android:value="560f2ad3e0f55a730c0007ac" android:name="UMENG_APPKEY"></meta-data>
+        <meta-data android:value="toutiaoCamera" android:name="UMENG_CHANNEL"/>
 
     </application>
 

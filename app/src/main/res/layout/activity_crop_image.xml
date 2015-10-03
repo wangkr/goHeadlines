@@ -13,7 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="编辑原图片"
-            android:textSize="18sp"
+            android:textSize="@dimen/crop_top_bar_title"
             android:textColor="@android:color/white"/>
     </LinearLayout>
 

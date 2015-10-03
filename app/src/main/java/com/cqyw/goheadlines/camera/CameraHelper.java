@@ -144,18 +144,12 @@ public class CameraHelper {
         try {
             // 预览和图片分辨率都设置为屏幕分辨率
             photoParameters.setPreviewSize(Constant.displayHeight, Constant.displayWidth);
-            if(camera_position == Camera.CameraInfo.CAMERA_FACING_BACK){
-                photoParameters.setPictureSize(Constant.displayHeight, Constant.displayWidth);
-            } else if(camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT){
-                Camera.Size picSize = cameraUtil.getMaxPictureSize(camera_position);
-                photoParameters.setPictureSize(picSize.width,picSize.height);
-            }
+            Camera.Size picSize = cameraUtil.getPicSizeOfScreen(camera_position);
+            photoParameters.setPictureSize(picSize.width,picSize.height);
         }catch (NullPointerException e){
-            photoParameters.setPictureSize(Constant.displayHeight, Constant.displayWidth);
-            photoParameters.setPreviewSize(Constant.displayHeight, Constant.displayWidth);
             e.printStackTrace();
-            String msg = "camera parameters setting error!";
-            Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+            String msg = "抱歉，您的摄像头不支持!";
+            Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
             Log.e("CameraHelper", msg);
         }
 
@@ -393,13 +387,16 @@ public class CameraHelper {
 //                return;
 //            }
 //        }
-        // 先旋转90度
+        // 旋转90度
         Matrix mRotate = new Matrix();
-        mRotate.setRotate(90);
+        if(camera_position == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            mRotate.setRotate(90);
+        } else if(camera_position == Camera.CameraInfo.CAMERA_FACING_FRONT){
+            mRotate.setRotate(-90);
+        }
         saved_photo = Bitmap.createBitmap(saved_photo, 0, 0, saved_photo.getWidth(), saved_photo.getHeight(),  mRotate, true);
 
         String filename = Constant.MD5(new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date()));
-
         File file = new File(Constant.CACHEPATH, filename);
         savedPhotoPath = file.getPath();
 

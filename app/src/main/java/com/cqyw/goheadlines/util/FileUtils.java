@@ -52,7 +52,7 @@ public class FileUtils {
 	 * 获取储存Image的目录
 	 * @return
 	 */
-	private String getStorageDirectory(){
+	public String getStorageDirectory(){
 		return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ?
 				mSdRootPath + FOLDER_NAME : mDataRootPath + FOLDER_NAME;
 	}

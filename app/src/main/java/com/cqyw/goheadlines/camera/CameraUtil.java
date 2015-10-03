@@ -8,6 +8,8 @@ import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import com.cqyw.goheadlines.config.Constant;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -130,6 +132,36 @@ public final class CameraUtil {
             return (Size)supportedPreviewSizesBack.get(0).get(KEY_VALUE);
         }
         return null;
+    }
+
+    public Size getPicSizeOfScreen(int cameraPosition) {
+        int picSizeOfSrnWidth = Constant.displayHeight;
+        int picSizeOfSrnHeight = Constant.displayWidth;
+        List<Map<String,Object>> supportedSizes;
+        if(cameraPosition == Camera.CameraInfo.CAMERA_FACING_BACK){
+            supportedSizes = supportedPictureSizesBack;
+        } else {
+            supportedSizes = supportedPictureSizesFront;
+        }
+        Size size;
+        int i = 0;
+        // 首先找支持屏幕分辨率的的图片分辨率
+        for(;i < supportedSizes.size();i++){
+            size = (Size)supportedSizes.get(i).get(CameraUtil.KEY_VALUE);
+            if(size.width == picSizeOfSrnWidth && size.height == picSizeOfSrnHeight){
+                return size;
+            }
+        }
+        // 没找到屏幕分辨率的照片分辨率，则找第一个(从大到小)和屏幕高近似的分辨率
+        for (i = 0; i < supportedSizes.size(); i++) {
+            size = (Size) supportedSizes.get(i).get(CameraUtil.KEY_VALUE);
+            float rate = (float) size.width / picSizeOfSrnWidth;
+            if ( rate <= 1.5 && rate >= 0.9) {
+                return size;
+            }
+        }
+        // 没有近似的则最大的(极端情况)
+        return getMaxPictureSize(cameraPosition);
     }
 
     /**

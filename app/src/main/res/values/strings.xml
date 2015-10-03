@@ -7,7 +7,7 @@
         <item>Science</item>
         <item>Nature</item>
         <item>看天下</item>
-        <item>肌肉型男</item>
+        <item>健美先生</item>
         <item>经济学人</item>
         <item>福布斯</item>
         <item>TIME</item>
@@ -19,5 +19,24 @@
         <item>NBA</item>
         <item>南方周末</item>
         <item>上头条</item>
+    </string-array>
+    <string-array name="stat_cover_item">
+        <item>nanshengnvsheng</item>
+        <item>yizhou</item>
+        <item>science</item>
+        <item>nature</item>
+        <item>kantianxia</item>
+        <item>jianmeixiansheng</item>
+        <item>jingjixueren</item>
+        <item>fubusi</item>
+        <item>time</item>
+        <item>easy</item>
+        <item>ruili</item>
+        <item>playboy</item>
+        <item>erciyuan</item>
+        <item>yilin</item>
+        <item>nba</item>
+        <item>nanfangzhoumo</item>
+        <item>shangtoutiao</item>
     </string-array>
 </resources>

@@ -49,8 +49,8 @@
         android:paddingLeft="20dp">
         <ImageView
             android:id="@+id/expand_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/camera_bottom_bar_expandBtn_size"
+            android:layout_height="@dimen/camera_bottom_bar_expandBtn_size"
             android:src="@mipmap/collapse_icn"
             android:layout_centerVertical="true"/>
         <RelativeLayout
@@ -59,8 +59,8 @@
             android:layout_centerInParent="true">
             <!-- 拍照按钮背景-->
             <com.cqyw.goheadlines.widget.circleview.CircleImageView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="@dimen/camera_bottom_bar_shutter_bg_size"
+                android:layout_height="@dimen/camera_bottom_bar_shutter_bg_size"
                 android:layout_centerInParent="true"
                 app:border_color="#c2c2c2"
                 android:src="#555555"
@@ -69,8 +69,8 @@
             <!-- 拍照按钮前景-->
             <com.cqyw.goheadlines.widget.circleview.CircleButton
                 android:id="@+id/shutter"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="@dimen/camera_bottom_bar_shutter_fg_size"
+                android:layout_height="@dimen/camera_bottom_bar_shutter_fg_size"
                 android:layout_centerInParent="true"
                 app:cb_color="#c2c2c2"
                 app:cb_pressedRingWidth="4dp"/>

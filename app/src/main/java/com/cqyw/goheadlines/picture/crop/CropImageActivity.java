@@ -11,11 +11,12 @@ import java.util.Date;
 
 import com.cqyw.goheadlines.AppSharedPreference;
 import com.cqyw.goheadlines.R;
-import com.cqyw.goheadlines.ShareActivity;
 import com.cqyw.goheadlines.picture.MonitoredActivity;
 import com.cqyw.goheadlines.picture.TouchMoveImageView;
+import com.cqyw.goheadlines.share.ShareActivity;
 import com.cqyw.goheadlines.util.Logger;
 import com.cqyw.goheadlines.config.Constant;
+import com.umeng.analytics.MobclickAgent;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -35,14 +36,13 @@ import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 /**
  *
@@ -59,8 +59,6 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
 
     private String TAG = "CropImageActivity";
 
-    private final Handler handler = new Handler();
-
     public boolean mSaving = false;
     public boolean isRadiusChanged = false;
     private boolean showBlurMenu = false;
@@ -74,21 +72,17 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
 
     private Bitmap mBitmap;
     private TouchMoveImageView mImageView;
-    private ImageView mWaterMark;
-    private SeekBar radius_size;
-    private SeekBar pen_size;
+    private SeekBar blurRadiusBar;
+    private SeekBar blurPenBar;
 
     private LinearLayout crop_child_menu_blur_ll;
     private LinearLayout crop_child_menu_rotate_ll;
     private LinearLayout pop_dialog_blur_radius_ll;
-    private RelativeLayout pop_dialog_pen_size_rl;
+    private RelativeLayout pop_dialog_blurPenBar_rl;
 
     Uri targetUri ;
 
     private ContentResolver mContentResolver ;
-
-    private static final int DEFAULT_WIDTH = 720;
-    private static final int DEFAULT_HEIGHT = 960;
 
     private int width ;
     private int height;
@@ -100,7 +94,9 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        // 设置全屏
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_crop_image);
 
         initViews();
@@ -124,8 +120,8 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         }
         // 设置图片显示宽为屏幕宽度,高为宽的4/3
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(Constant.picWidth,Constant.picHeight);
+        ImageView mWaterMark = new ImageView(this);
         mImageView = new TouchMoveImageView(this,mBitmap);
-        mWaterMark = new ImageView(this);
         mCrViewLayout.addView(mImageView, params);
         mCrViewLayout.addView(mWaterMark, params);
         // 设置默认封面
@@ -135,10 +131,10 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         mImageView.setOnTouchListener(touchViewListener);
 
         // 初始化seekbar
-        radius_size.setMax(Constant.maxRadiusSize);
-        pen_size.setMax(Constant.maxPenSize);
-        radius_size.setProgress(Constant.defRadiuSize);
-        pen_size.setProgress(AppSharedPreference.getPenSizePref());
+        blurRadiusBar.setMax(Constant.maxRadiusSize);
+        blurPenBar.setMax(Constant.maxPenSize);
+        blurRadiusBar.setProgress(Constant.defRadiuSize);
+        blurPenBar.setProgress(AppSharedPreference.getPenSizePref());
     }
     // 触摸mImageView弹出菜单消失
     View.OnTouchListener touchViewListener = new View.OnTouchListener() {
@@ -153,7 +149,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
             float m_Y = event.getY(0);
             if ( viewRect.contains((int) m_X, (int) m_Y)) {
                 pop_dialog_blur_radius_ll.setVisibility(View.GONE);
-                pop_dialog_pen_size_rl.setVisibility(View.GONE);
+                pop_dialog_blurPenBar_rl.setVisibility(View.GONE);
             }
             return false;
         }
@@ -177,18 +173,18 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         findViewById(R.id.crop_child_menu_fanzhuan).setOnClickListener(this);
 
         pop_dialog_blur_radius_ll = (LinearLayout)findViewById(R.id.crop_pop_dialg_blurradius);
-        pop_dialog_pen_size_rl = (RelativeLayout)findViewById(R.id.crop_pop_dialg_pensize);
+        pop_dialog_blurPenBar_rl = (RelativeLayout)findViewById(R.id.crop_pop_dialg_pensize);
         crop_child_menu_blur_ll = (LinearLayout)findViewById(R.id.crop_blur_child_menu_ll);
         crop_child_menu_rotate_ll = (LinearLayout)findViewById(R.id.crop_rotate_child_menu_ll);
 
-        radius_size = (SeekBar)findViewById(R.id.seekBar_blur_radius);
-        pen_size = (SeekBar)findViewById(R.id.seekBar_pen_size);
+        blurRadiusBar = (SeekBar)findViewById(R.id.seekBar_blur_radius);
+        blurPenBar = (SeekBar)findViewById(R.id.seekBar_pen_size);
 
-        radius_size.setOnSeekBarChangeListener(this);
-        pen_size.setOnSeekBarChangeListener(this);
+        blurRadiusBar.setOnSeekBarChangeListener(this);
+        blurPenBar.setOnSeekBarChangeListener(this);
 
         pop_dialog_blur_radius_ll.setVisibility(View.GONE);
-        pop_dialog_pen_size_rl.setVisibility(View.GONE);
+        pop_dialog_blurPenBar_rl.setVisibility(View.GONE);
 
         int barrier_height = Constant.displayHeight-Constant.picHeight;
         mCrViewLayout = (RelativeLayout)findViewById(R.id.crop_CropImage_view);
@@ -229,20 +225,24 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
                 showChildMenu(v.getId());
                 break;
             case R.id.crop_child_menu_pen_size:
-                int pen_size_visi = pop_dialog_pen_size_rl.getVisibility()==View.VISIBLE?View.GONE: View.VISIBLE;
-                pop_dialog_pen_size_rl.setVisibility(pen_size_visi);
+                int blurPenBar_visi = pop_dialog_blurPenBar_rl.getVisibility()==View.VISIBLE?View.GONE: View.VISIBLE;
+                pop_dialog_blurPenBar_rl.setVisibility(blurPenBar_visi);
                 pop_dialog_blur_radius_ll.setVisibility(View.GONE);
                 break;
             case R.id.crop_child_menu_blur_size:
                 int blur_radius_visi = pop_dialog_blur_radius_ll.getVisibility()==View.VISIBLE?View.GONE: View.VISIBLE;
-                pop_dialog_pen_size_rl.setVisibility(View.GONE);
+                pop_dialog_blurPenBar_rl.setVisibility(View.GONE);
                 pop_dialog_blur_radius_ll.setVisibility(blur_radius_visi);
                 break;
             case R.id.crop_child_menu_rotate:
                 mImageView.rotate(90);
+                // 旋转功能使用统计
+                MobclickAgent.onEvent(this,Constant.stat_rotate_menu,Constant.stat_xuanzhuan);
                 break;
             case R.id.crop_child_menu_fanzhuan:
                 mImageView.flip_Horizon();
+                // 翻转功能使用统计
+                MobclickAgent.onEvent(this,Constant.stat_rotate_menu,Constant.stat_fanzhuan);
                 break;
             default:
 
@@ -260,18 +260,19 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         switch (Id){
             case R.id.crop_bar_blur_menu:
                 showBlurMenu = true;
+                crop_child_menu_blur_ll.startAnimation(showAni);
+                isAnimating = true;
                 startBackgroundJob(CropImageActivity.this, null, "正在处理...",
                         new Runnable() {
                             public void run() {
-                                handler.post(new Runnable() {
+                                mHandler.post(new Runnable() {
                                     public void run() {
                                         mImageView.setBluring(true);
                                     }
                                 });
                             }
-                        }, handler
+                        }, mHandler
                 );
-                crop_child_menu_blur_ll.startAnimation(showAni);
                 if(AppSharedPreference.isFirstUseBlur()){
                     AlertDialog tip = new AlertDialog.Builder(CropImageActivity.this)
                             .setTitle("提示")
@@ -284,7 +285,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
                 }
                 break;
             case R.id.crop_child_menu_blur_back:
-                pop_dialog_pen_size_rl.setVisibility(View.GONE);
+                pop_dialog_blurPenBar_rl.setVisibility(View.GONE);
                 pop_dialog_blur_radius_ll.setVisibility(View.GONE);
                 // 如果进行了编辑就提示是否返回
                 if(mImageView.isEdited) {
@@ -295,6 +296,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     crop_child_menu_blur_ll.startAnimation(hideAni);
+                                    isAnimating = true;
                                     /// 取消模糊化效果
                                     mImageView.setBluring(false);
                                 }
@@ -304,6 +306,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
                     alertDialog.show();
                 } else {
                     crop_child_menu_blur_ll.startAnimation(hideAni);
+                    isAnimating = true;
                     /// 取消模糊化效果
                     mImageView.setBluring(false);
                 }
@@ -311,9 +314,11 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
             case R.id.crop_bar_rotate_menu:
                 showRotateMenu = true;
                 crop_child_menu_rotate_ll.startAnimation(showAni);
+                isAnimating = true;
                 break;
             case R.id.crop_child_menu_rotate_back:
                 crop_child_menu_rotate_ll.startAnimation(hideAni);
+                isAnimating = true;
                 break;
 
         }
@@ -323,14 +328,11 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
     private void initShowChildMenuAnimation(){
         showAni = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 1, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF,0);
         hideAni = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 1, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF,0);
-        showAni.setInterpolator(new DecelerateInterpolator(2f));
-        hideAni.setInterpolator(new DecelerateInterpolator(2f));
-        showAni.setDuration(500);
-        hideAni.setDuration(500);
+        showAni.setDuration(600);
+        hideAni.setDuration(600);
         showAni.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                isAnimating = true;
             }
 
             @Override
@@ -354,7 +356,6 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         hideAni.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                isAnimating = true;
             }
 
             @Override
@@ -395,13 +396,13 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
                     startBackgroundJob(CropImageActivity.this, null, "正在处理...",
                             new Runnable() {
                                 public void run() {
-                                    handler.post(new Runnable() {
+                                    mHandler.post(new Runnable() {
                                         public void run() {
                                             mImageView.refreshCanvas();
                                         }
                                     });
                                 }
-                            }, handler
+                            }, mHandler
                     );
                     isRadiusChanged = false;
                 }
@@ -430,7 +431,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
             case R.id.seekBar_pen_size:
                 // 模糊画笔大小改变监听
                 mImageView.setPenSize(progress);
-                float scale = (float)progress/100;
+                float scale = Math.max((float)progress*1.2f,4f)/100;
                 ((ImageView)findViewById(R.id.pen_size_view)).setScaleY(scale);
                 ((ImageView)findViewById(R.id.pen_size_view)).setScaleX(scale);
                 break;
@@ -497,7 +498,7 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
             }
 
             //shark 如果图片太大的话，压缩
-            while ((width / sampleSize > Constant.displayWidth) || (height / sampleSize > Constant.displayHeight)) {
+            while ((width / sampleSize > Constant.displayWidth*2) || (height / sampleSize > Constant.displayHeight*2)) {
                 sampleSize *= 2;
             }
 
@@ -762,6 +763,34 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         mImageView.setImageBitmap(mBitmap);
     }
 
+    // 统计用户使用模糊功能事件的属性
+    private void statBlurEvent(){
+        // 模糊半径
+        if(mImageView.getRadius()<=25){
+            MobclickAgent.onEvent(this,Constant.stat_blur_radius,"0~25");
+        } else if(mImageView.getRadius() <= 45){
+            MobclickAgent.onEvent(this,Constant.stat_blur_radius,"28~40");
+        } else if(mImageView.getRadius() <= 60){
+            MobclickAgent.onEvent(this,Constant.stat_blur_radius,"46~60");
+        } else {
+            MobclickAgent.onEvent(this,Constant.stat_blur_radius,"80~91");
+        }
+
+        // 使用画笔大小
+        if(mImageView.getPenSize()<=100){
+            MobclickAgent.onEvent(this,Constant.stat_pen_size,"0~100");
+        } else if(mImageView.getPenSize() <= 200){
+            MobclickAgent.onEvent(this,Constant.stat_pen_size,"101~200");
+        } else if(mImageView.getPenSize() <= 300){
+            MobclickAgent.onEvent(this,Constant.stat_pen_size,"201~300");
+        } else {
+            MobclickAgent.onEvent(this,Constant.stat_pen_size,"301~500");
+        }
+
+        // 保存次数
+        MobclickAgent.onEvent(this,Constant.stat_blur_save_times);
+    }
+
 
     /**
      * 点击保存的处理，这里保存成功回传的是一个Uri，系统默认传回的是一个bitmap图，
@@ -773,6 +802,10 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
      * @date 2012-12-14 上午10:32:38
      */
     private void onSaveClicked() {
+        // 统计【编辑原图片】功能使用属性
+        if(mImageView.isBluring) {
+            statBlurEvent();
+        }
         final Bitmap croppedImage = mImageView.createNewPhoto();
         // 水印Bitmap
         final Bitmap waterMark = BitmapFactory.decodeResource(getResources(),Constant.coverResIds[coverIdx]);
@@ -781,22 +814,26 @@ public class CropImageActivity extends MonitoredActivity implements View.OnClick
         Logger.w(TAG, "croppedImage wh:" + croppedImage.getHeight());
 
         String imgPath = getFilePath(targetUri);
-        final String cropPath = Constant.CACHEPATH + "/" + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+        final String cropPath = Constant.CACHEPATH + "/" + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date())+".jpg";
         Logger.w("onSaveClicked", "cropPath:" + cropPath);
 
-        mHandler.post(new Runnable() {
-
+        startBackgroundJob(CropImageActivity.this, null, "处理中,请稍候...", new Runnable() {
             @Override
             public void run() {
-                // TODO Auto-generated method stub
-                Bitmap finalBitmap = createBitmap(croppedImage, waterMark);
-                saveDrawableToCache(finalBitmap, cropPath);
-                croppedImage.recycle();
-                waterMark.recycle();
-                croppedImage.recycle();
-            }
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        Bitmap finalBitmap = createBitmap(croppedImage, waterMark);
+                        saveDrawableToCache(finalBitmap, cropPath);
+                        croppedImage.recycle();
+                        waterMark.recycle();
+                        croppedImage.recycle();
+                    }
 
-        });
+                });
+            }
+        }, mHandler);
 
         Uri cropUri = Uri.fromFile(new File(cropPath));
         Logger.d("onSaveClicked", "cropPath:" + cropPath);

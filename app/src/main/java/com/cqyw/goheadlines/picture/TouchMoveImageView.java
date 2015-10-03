@@ -36,7 +36,7 @@ public class TouchMoveImageView extends ImageView {
 
     private boolean isPressed = false;
     public boolean isEdited = false;
-    private boolean isBluring = false;
+    public boolean isBluring = false;
     private boolean hasBeenBlured = false;
     private int radius;                     // 模糊半径
     private int penSize;                    // 画笔半径
@@ -48,7 +48,7 @@ public class TouchMoveImageView extends ImageView {
     private BlurMaskFilter blurMaskFilter;  // 模糊面具
     private Path path;
     private Paint paint;
-    private Paint paint1;
+    private Paint cursorPaint;
     private Paint clearPaint;
 
     float x_down = 0;
@@ -57,6 +57,7 @@ public class TouchMoveImageView extends ImageView {
     PointF mid = new PointF();
     float oldDist = 1f;
     float oldRotation = 0;
+    float cursorRadius = 0;
     Matrix matrix = new Matrix();
     Matrix matrixTmp = new Matrix();
     Matrix matrixZoom = new Matrix();
@@ -88,6 +89,7 @@ public class TouchMoveImageView extends ImageView {
         super(activity);
         radius = Constant.defRadiuSize;
         penSize = Constant.defPenSize;
+        cursorRadius = penSize*0.6f;
         initDrawTools();
         isBluring = false;
         gintama = resBitmap;
@@ -104,23 +106,28 @@ public class TouchMoveImageView extends ImageView {
     private Bitmap createARG(Bitmap resBitmap, Config config){
         Bitmap bitmap = Bitmap.createBitmap(resBitmap.getWidth(),resBitmap.getHeight(),config);
         Canvas canvas = new Canvas(bitmap);
-        Paint paint1 = new Paint();
-        paint1.setFlags(Paint.FILTER_BITMAP_FLAG);
-        canvas.drawBitmap(resBitmap, 0, 0, paint1);
+        Paint cursorPaint = new Paint();
+        cursorPaint.setFlags(Paint.FILTER_BITMAP_FLAG);
+        canvas.drawBitmap(resBitmap, 0, 0, cursorPaint);
         return  bitmap;
     }
 
     public void setPenSize(int penSize) {
-        this.penSize = penSize;
+        this.penSize = Math.max(penSize,4);
+        cursorRadius = this.penSize*0.6f;
         if(paint != null){
             paint.setStrokeWidth(penSize);
-            blurMaskFilter = new BlurMaskFilter(penSize/4f>2f?penSize/4f:2f, BlurMaskFilter.Blur.SOLID);
+            blurMaskFilter = new BlurMaskFilter(Math.max((float) penSize * 0.1f, 2f), BlurMaskFilter.Blur.SOLID);
             paint.setMaskFilter(blurMaskFilter);
         }
     }
 
     public void setRadius(int radius) {
         this.radius = radius;
+    }
+
+    public float getRadius(){
+        return radius;
     }
 
     public int getPenSize(){
@@ -199,7 +206,7 @@ public class TouchMoveImageView extends ImageView {
             canvas.drawBitmap(bluredBitmap, 0, 0, null);
             if(isPressed){
                 clearCanvas(cursorCanvas);
-                cursorCanvas.drawCircle(x_down, y_down, penSize/2+penSize/6, paint1);
+                cursorCanvas.drawCircle(x_down, y_down, cursorRadius, cursorPaint);
                 canvas.drawBitmap(cursorBitmap, 0, 0, null);
             } else {
                 clearCanvas(cursorCanvas);
@@ -219,14 +226,14 @@ public class TouchMoveImageView extends ImageView {
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(penSize);
         
-        paint1 = new Paint();
-        paint1.setStyle(Paint.Style.FILL);
-        paint1.setColor(Color.argb(0x88, 0xff, 0xff, 0xff));
+        cursorPaint = new Paint();
+        cursorPaint.setStyle(Paint.Style.FILL);
+        cursorPaint.setColor(Color.argb(0x88, 0xff, 0xff, 0xff));
 
         clearPaint = new Paint();
         clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
-        blurMaskFilter = new BlurMaskFilter(penSize/5f>2f?penSize/5f:2f, BlurMaskFilter.Blur.SOLID);
+        blurMaskFilter = new BlurMaskFilter(Math.max((float)penSize*0.1f, 2f), BlurMaskFilter.Blur.SOLID);
         paint.setMaskFilter(blurMaskFilter);
 
         path = new Path();
@@ -555,7 +562,7 @@ public class TouchMoveImageView extends ImageView {
         }
         blurCanvas = null;
         cursorCanvas = null;
-        paint1 = null;
+        cursorPaint = null;
         paint = null;
         clearPaint = null;
         System.gc();

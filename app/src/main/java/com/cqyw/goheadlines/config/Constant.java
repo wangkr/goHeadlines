@@ -30,16 +30,33 @@ public class Constant {
     public static final int maxRadiusSize = 100;
     public static final int defPenSize = 150;
     public static final int maxPenSize = 500;
+    // 模糊图的缩放因子
     public static final float blurScaleFactor = 4;
-    // 阶梯式模糊半径阶段
-    public static final int radius_stage1 = 40;
+    // 阶梯式调整模糊半径的阶段值
+    public static final int radius_stage1 = 50;
     public static final int radius_stage2 = 70;
     public static final int radius_stage3 = 90;
+    // 阶梯式调整模糊半径的比率
     public static final float[] radius_rate = {0.50f, 0.56f, 0.66f, 0.91f};
     // 是否显示【模糊背景菜单】
     public static final boolean blur_menu_shown = true;
+    // 统计用户使用app的事件
+    public static final String stat_camera_type = "Camera_Type";
+    public static final String stat_camera_type_front = "Front";
+    public static final String stat_camera_type_back = "Back";
+    public static final String stat_cover_type = "Cover_Type";
+    public static final String stat_pen_size = "Pen_Size";
+    public static final String stat_blur_radius = "Blur_Radius";
+    public static final String stat_blur_save_times = "Blur_Save";
+    public static final String stat_rotate_menu = "Rotate_Flip";
+    public static final String stat_fanzhuan = "Fanzhuan";
+    public static final String stat_xuanzhuan = "Xuanzhuan";
+    public static final String stat_share_fun = "Share_Save";
+    public static final String stat_save_picture = "Share";
+    public static final String stat_share_picture = "Save";
     /**
-     * 设备屏幕宽度高度，MainActivity里面设置
+     * 设备屏幕宽度高度,默认图片宽高，闪光灯和自动对焦功能探测设置
+     * 在WelcomeActivity里面设置
      */
     public static int displayWidth = 0;
     public static int displayHeight = 0;
@@ -61,8 +78,6 @@ public class Constant {
     // 默认模糊画笔大小
     public final static String penSizeKey = "penSizeKey";
 
-    public enum Share_Content{IMAGE,IMAGE_TXT,TXT}
-    public enum Content_TYPE{PATH,RESID,SRC}
     /**
      * 指定发布图片的宽度,单位px
      */

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="camera_top_bar_height">40dp</dimen>
+    <dimen name="camera_bottom_bar_height">66dp</dimen>
+    <dimen name="crop_bar_height">53dp</dimen>
+    <dimen name="camera_bottom_bar_expandBtn_size">26dp</dimen>
+    <dimen name="camera_bottom_bar_shutter_bg_size">46dp</dimen>
+    <dimen name="camera_bottom_bar_shutter_fg_size">42dp</dimen>
+    <dimen name="crop_top_bar_title">14sp</dimen>
+</resources>
