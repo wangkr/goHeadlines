@@ -46,7 +46,8 @@
         android:layout_height="@dimen/camera_bottom_bar_height"
         android:layout_alignParentBottom="true"
         android:background="@color/theme_color"
-        android:paddingLeft="20dp">
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
         <ImageView
             android:id="@+id/expand_button"
             android:layout_width="@dimen/camera_bottom_bar_expandBtn_size"
@@ -75,20 +76,37 @@
                 app:cb_color="#c2c2c2"
                 app:cb_pressedRingWidth="4dp"/>
         </RelativeLayout>
+        <ImageView
+            android:id="@+id/gallery_button"
+            android:layout_width="@dimen/camera_bottom_bar_expandBtn_size"
+            android:layout_height="@dimen/camera_bottom_bar_expandBtn_size"
+            android:src="@mipmap/gallery"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
+            android:background="@drawable/select_item_background"/>
     </RelativeLayout>
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/cover_icn_rl"
         android:layout_width="match_parent"
-        android:layout_height="110dp"
+        android:layout_height="145dp"
         android:layout_above="@id/camera_bottom_bar"
         android:padding="5dp"
-        android:background="#88000000">
+        android:background="#88000000"
+        android:orientation="vertical">
+        <SeekBar
+            android:id="@+id/camera_zoom_bar"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginBottom="5dp"
+            />
         <com.cqyw.goheadlines.widget.horizonListView.HorizontalListView
             android:id="@+id/cover_icon_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
             />
-    </RelativeLayout>
+    </LinearLayout>
 
 </RelativeLayout>

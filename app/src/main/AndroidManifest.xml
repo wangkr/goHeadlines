@@ -4,7 +4,7 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="14" />
 
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" />
@@ -24,18 +24,21 @@
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
 
-    <application android:allowBackup="true" android:label="@string/app_name"
+    <application android:allowBackup="false" android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme">
 
-        <activity android:name=".WelcomeActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".WelcomeActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"/>
+        <activity android:name=".MainActivity"
+            android:launchMode="singleInstance"/>
 
-        <activity android:name=".share.ShareActivity">
+        <activity android:name=".share.ShareActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -43,11 +46,81 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".picture.crop.CropImageActivity"/>
+        <activity android:name=".picture.crop.CropImageActivity"
+            android:launchMode="singleTop"/>
 
         <meta-data android:value="560f2ad3e0f55a730c0007ac" android:name="UMENG_APPKEY"></meta-data>
-        <meta-data android:value="toutiaoCamera" android:name="UMENG_CHANNEL"/>
+        <meta-data android:value="" android:name="UMENG_CHANNEL"/>
 
+        <!--微博分享-->
+
+        <!--<activity-->
+            <!--android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"-->
+            <!--android:configChanges="keyboardHidden|orientation"-->
+            <!--android:windowSoftInputMode="adjustResize"-->
+            <!--android:exported="false" >-->
+        <!--</activity>-->
+
+         <!--手机短信注册页面 -->
+        <!--<activity android:name="com.sina.weibo.sdk.register.mobile.MobileRegisterActivity"-->
+            <!--android:configChanges="keyboardHidden|orientation"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--android:windowSoftInputMode="adjustResize"-->
+            <!--android:exported="false" >-->
+        <!--</activity>-->
+
+        <!--&lt;!&ndash; 注册选择国家页面 &ndash;&gt;-->
+        <!--<activity android:name="com.sina.weibo.sdk.register.mobile.SelectCountryActivity"-->
+            <!--android:configChanges="keyboardHidden|orientation"-->
+            <!--android:windowSoftInputMode="adjustResize"-->
+            <!--android:exported="false" >-->
+        <!--</activity>-->
+
+        <!--<meta-data-->
+            <!--android:name="WEIBO_APPKEY"-->
+            <!--android:value="1816477568" />-->
+        <!--<meta-data-->
+            <!--android:name="WEIBO_CHANNEL"-->
+            <!--android:value="weibo" />-->
+
+        <!--&lt;!&ndash;微信分享&ndash;&gt;-->
+        <!--<receiver-->
+            <!--android:name=".share.weixin.WexinRegister"-->
+            <!--android:permission="com.tencent.mm.plugin.permission.SEND" >-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.tencent.mm.plugin.openapi.Intent.ACTION_REFRESH_WXAPP" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+
+        <!--&lt;!&ndash;腾讯分享&ndash;&gt;-->
+        <!--<activity-->
+            <!--android:name="com.tencent.tauth.AuthActivity"-->
+            <!--android:noHistory="true"-->
+            <!--android:launchMode="singleTask" >-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.VIEW" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+                <!--<category android:name="android.intent.category.BROWSABLE" />-->
+                <!--<data android:scheme="tencent1104884734" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+        <!--<activity android:name="com.tencent.connect.common.AssistActivity"-->
+            <!--android:theme="@android:style/Theme.Translucent.NoTitleBar"-->
+            <!--android:configChanges="orientation|keyboardHidden|screenSize"-->
+            <!--/>-->
+        <!--ShareSDK-->
+        <activity
+            android:name="com.mob.tools.MobUIShell"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

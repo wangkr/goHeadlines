@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DevInfor>
+    <ShareSDK 
+        AppKey = "ab79af489739"/> <!-- 修改成你在sharesdk后台注册的应用的appkey"-->
+    <!-- ShareByAppClient标识是否使用微博客户端分享，默认是false -->
+    <SinaWeibo
+        Id="1"
+        SortId="1"
+        AppKey="1816477568"
+        AppSecret="ab1f07e39e0b2c456abdf83e832d876b"
+        RedirectUrl="http://huanian.org/others.html"
+        ShareByAppClient="true"
+        Enable="true" />
+
+    <WechatMoments
+        Id="2"
+        SortId="2"
+        AppId="wx72d8148fb626304f"
+        AppSecret="8a0817ef8e9283faf44dee54318c6d36"
+        BypassApproval="false"
+        Enable="true" />
+
+    <!-- ShareByAppClient标识是否使用微博客户端分享，默认是false -->
+    <QZone
+        Id="3"
+        SortId="3"
+        AppId="1104884734"
+        AppKey="bthK9iiQTy2J5HsO"
+        ShareByAppClient="true"
+        Enable="true" />
+    
+    <!-- 
+    	Wechat微信和WechatMoments微信朋友圈的appid是一样的；
+    
+                       注意：开发者不能用我们这两个平台的appid,否则分享不了
+    
+       	  微信测试的时候，微信测试需要先签名打包出apk,
+		sample测试微信，要先签名打包，keystore在sample项目中，密码123456
+		
+		BypassApproval是绕过审核的标记，设置为true后AppId将被忽略，故不经过
+		审核的应用也可以执行分享，但是仅限于分享文字和图片，不能分享其他类型，
+		默认值为false。此外，微信收藏不支持此字段。
+	-->
+    <Wechat
+        Id="4"
+        SortId="4"
+        AppId="wx4868b35061f87885"
+        AppSecret="64020361b8ec4c99936c0e3999a9f249"
+        BypassApproval="false"
+        Enable="true" />
+        
+	<WechatFavorite
+        Id="5"
+        SortId="5"
+        AppId="wx72d8148fb626304f"
+        AppSecret="8a0817ef8e9283faf44dee54318c6d36"
+        Enable="true" />
+    
+	<!-- ShareByAppClient标识是否使用微博客户端分享，默认是false -->
+	<QQ
+        Id="6"
+        SortId="6"
+        AppId="1104884734"
+        AppKey="bthK9iiQTy2J5HsO"
+        ShareByAppClient="true"
+        Enable="true" />
+
+    <GooglePlus
+        Id="7"
+        SortId="7"
+        Enable="true" />
+
+    <LinkedIn
+        Id="8"
+        SortId="8"
+        ApiKey="75nsy75zcb9rnt"
+        SecretKey="ztEoH6HcsCyzuVmX"
+        RedirectUrl="http://huanian.org/others.html"
+        Enable="true" />
+
+    <ShortMessage
+        Id="9"
+        SortId="9"
+        Enable="true" />
+</DevInfor>

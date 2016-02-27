@@ -11,7 +11,7 @@ import java.util.Date;
 
 import com.cqyw.goheadlines.AppSharedPreference;
 import com.cqyw.goheadlines.R;
-import com.cqyw.goheadlines.picture.MonitoredActivity;
+import com.cqyw.goheadlines.MonitoredActivity;
 import com.cqyw.goheadlines.picture.TouchMoveImageView;
 import com.cqyw.goheadlines.share.ShareActivity;
 import com.cqyw.goheadlines.util.Logger;

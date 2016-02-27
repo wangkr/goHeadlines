@@ -41,6 +41,7 @@ public class CameraHelper {
     public int cameraCount;
     public int camera_position;
     public int save_photo_state;
+    public int mMaxZoom;
     public boolean isPreviewing;
     public boolean focuseState;
     public boolean focusing;
@@ -62,6 +63,8 @@ public class CameraHelper {
     public final static int MSG_FOCUS_FAILED = 3236;
     /*主线程拍照消息*/
     public final static int MSG_TAKE_PICTURE = 3237;
+    /*终止主线程*/
+    public final static int MSG_EXIT_APP = 3238;
 
 
     public int flashLightMode;
@@ -72,6 +75,7 @@ public class CameraHelper {
     public final static int FLIGHT_NONE = 3243;
 
     public final static String IMAGE_SAVE = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)+"/Camera";
+    public static final float MAX_ZOOM_GESTURE_SIZE = 2.5f; // This affects the pinch to zoom gesture
 
     public CameraHelper(Context mContext, SurfaceHolder holder,Handler handler) {
         this.handler = handler;
@@ -109,15 +113,19 @@ public class CameraHelper {
             camera = null;
         }
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-        if(cameraCount <= 1){
-            Toast.makeText(mContext, "系统只检测到一个摄像头", Toast.LENGTH_LONG).show();
+        if(cameraCount == 0){
+            Toast.makeText(mContext, "系统没有检测到摄像头", Toast.LENGTH_LONG).show();
+            handler.sendEmptyMessage(MSG_EXIT_APP);
             return;
-        }
-        for(int i = 0; i < cameraCount;i++) {
-            Camera.getCameraInfo(i, cameraInfo);//得到每一个摄像头的信息
-            if (position == cameraInfo.facing) {
-                camera = Camera.open(i);
-                break;
+        } else if(cameraCount == 1){
+            camera = Camera.open();
+        } else if(cameraCount >= 2) {
+            for (int i = 0; i < cameraCount; i++) {
+                Camera.getCameraInfo(i, cameraInfo);//得到每一个摄像头的信息
+                if (position == cameraInfo.facing) {
+                    camera = Camera.open(i);
+                    break;
+                }
             }
         }
 
@@ -141,6 +149,14 @@ public class CameraHelper {
      */
     private void setParameters(int camera_position){
         photoParameters = camera.getParameters();
+
+        // 初始化最大缩放参数
+        if (photoParameters.isZoomSupported()) {
+            mMaxZoom = photoParameters.getMaxZoom();
+        } else {
+            mMaxZoom = 0;
+        }
+
         try {
             // 预览和图片分辨率都设置为屏幕分辨率
             photoParameters.setPreviewSize(Constant.displayHeight, Constant.displayWidth);
@@ -164,6 +180,28 @@ public class CameraHelper {
             camera.release();
             camera = null;
             isPreviewing = false;
+        }
+    }
+
+    /**
+     * 调整焦距
+     * @param zoomScaleFactor
+     */
+    public void setCameraZoom(float zoomScaleFactor) {
+        // Convert gesture to camera zoom value
+        int zoom = (int) ((zoomScaleFactor - 1) * mMaxZoom);
+
+        // Sanity check for zoom level
+        if (zoom > mMaxZoom) {
+            zoom = mMaxZoom;
+        } else if (zoom < 0) {
+            zoom = 0;
+        }
+
+        // Update the camera with the new zoom if it is supported
+        if (photoParameters.isZoomSupported()) {
+            photoParameters.setZoom(zoom);
+            camera.setParameters(photoParameters);
         }
     }
 

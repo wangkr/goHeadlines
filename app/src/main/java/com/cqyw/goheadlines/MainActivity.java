@@ -1,5 +1,6 @@
 package com.cqyw.goheadlines;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
@@ -8,8 +9,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -23,13 +24,12 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.cqyw.goheadlines.camera.CameraHelper;
-import com.cqyw.goheadlines.camera.ScreenOrnDetector;
 import com.cqyw.goheadlines.config.Constant;
 import com.cqyw.goheadlines.config.Utils;
-import com.cqyw.goheadlines.picture.MonitoredActivity;
 import com.cqyw.goheadlines.picture.crop.CropImageActivity;
 import com.cqyw.goheadlines.util.Logger;
 import com.cqyw.goheadlines.widget.horizonListView.*;
@@ -42,6 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.sharesdk.framework.ShareSDK;
+
 /**
  * Created by Kairong on 2015/9/20.
  * mail:wangkrhust@gmail.com
@@ -52,42 +54,73 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     private SurfaceView surface;
     private ImageView focus_view;                // 显示对焦光标
     private ImageView flash_light;               // 闪光灯
+    private ImageView switch_camera;             // 切换摄像头
     private ImageView cover_view;                // 封面图片
     private ImageView expand_button;             // 扩展按钮
+    private ImageView gallery_button;            // 本地相册按钮
+    private SeekBar camera_zoom_bar;             // 相机缩放
+    // 手势控制
+    private ScaleGestureDetector scaleGestureDetector;
+    private View.OnTouchListener onTouchListener;
+
     /*显示封面选项菜单*/
     private boolean ifCoverMenuShown = true;
     private String[] stat_cover_items;
-//
-//    /*屏幕方向检测器，用于监测屏幕的旋转*/
-//    private ScreenOrnDetector screenOrnDetector;
-
-//    //手机屏幕的旋转方向
-//    /*水平方向*/
-//    public static final int ORIENTATION_LAND = 0;
-//    /*竖直方向*/
-//    public static final int ORIENTATION_PORTAIT = 90;
-//    /*反方向水平方向*/
-//    public static final int ORIENTATION_REV_LAND = 180;
-//    /*反方向竖直方向*/
-//    public static final int ORIENTATION_REV_PORTRAIT = 270;
 
     enum ANIM_TYPE{SCALE,HIDE};
 
     private int barrier_height = 0;     // 拍照的遮幅高度
     private int curCoverIndex = 0;      // 当前选择的封面
-//    private int screenOrn = 90;         // 当前屏幕朝向
-//    private int picTakenScreenOrn = 0;  // 拍照时的手机屏幕朝向
 
     private String TAG = "MainActivity";
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        ShareSDK.initSDK(this);
         // 设置全屏
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_camera);
         initCameraHelper();
         // 初始化视图
         initViews();
+
+        onTouchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    Rect surfaceRect = new Rect();
+                    view.getDrawingRect(surfaceRect);
+                    int focus_view_size = getResources().getDimensionPixelSize(R.dimen.focus_view_size);
+                    int photo_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height) + Math.round(focus_view_size / 2);
+                    int bottom_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_bottom_bar_height) + Math.round(focus_view_size / 2);
+                    surfaceRect.top += photo_bar_height;
+                    surfaceRect.bottom -= bottom_bar_height;
+                    surfaceRect.left += Math.round(focus_view_size / 2);
+                    surfaceRect.right -= Math.round(focus_view_size / 2);
+                    float m_X = motionEvent.getX(0);
+                    float m_Y = motionEvent.getY(0);
+                    if (surfaceRect.contains((int) m_X, (int) m_Y)) {
+                        if (cameraHelper.isPreviewing
+                                && !cameraHelper.focusing
+                                && cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_BACK
+                                ) {
+                            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(focus_view.getLayoutParams());
+                            // 将focus_view中心移动到点击的地方
+                            lp.setMargins((int) (m_X - focus_view_size / 2), (int) (m_Y - focus_view_size / 2), 0, 0);
+                            focus_view.setLayoutParams(lp);
+                            cameraHelper.autoFocus(false, false);
+                        }
+                    } else {
+                        return scaleGestureDetector.onTouchEvent(motionEvent);
+                    }
+                }
+                return true;
+            }
+        };
+
+        // 设置“点击聚焦”和拍照模式菜单弹回
+        surface.setOnTouchListener(onTouchListener);
     }
 
     // 初始化cameraHelper
@@ -110,14 +143,18 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
 
         focus_view = (ImageView)findViewById(R.id.focus_view);
         cover_view = (ImageView)findViewById(R.id.cover);
+        camera_zoom_bar = (SeekBar)findViewById(R.id.camera_zoom_bar);
+        switch_camera = (ImageView)findViewById(R.id.switch_camera);
         expand_button = (ImageView)findViewById(R.id.expand_button);
+        gallery_button = (ImageView)findViewById(R.id.gallery_button);
         flash_light = (ImageView)findViewById(R.id.flash_light);
 
         // 设置监听
         expand_button.setOnClickListener(this);
+        gallery_button.setOnClickListener(this);
         flash_light.setOnClickListener(this);
+        switch_camera.setOnClickListener(this);
         findViewById(R.id.shutter).setOnClickListener(this);
-        findViewById(R.id.switch_camera).setOnClickListener(this);
 
 
         int camera_top_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height);
@@ -129,9 +166,6 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
         previewing_barrier.addView(v, lp);
         // 设置封面
         cover_view.setImageResource(Constant.coverResIds[0]);
-
-        // 设置“点击聚焦”和拍照模式菜单弹回
-        surface.setOnTouchListener(onTouchListener);
 
         // 初始化封面选项菜单
         String[] coverTitles = getResources().getStringArray(R.array.cover_title);
@@ -153,6 +187,27 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
 
         stat_cover_items = getResources().getStringArray(R.array.stat_cover_item);
 
+        camera_zoom_bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (cameraHelper.isPreviewing && !cameraHelper.focusing) {
+                    float scaleFactor = progress*1f / 100 + 1;
+                    cameraHelper.setCameraZoom(scaleFactor);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        camera_zoom_bar.setMax(100);
+
     }
     private AdapterView.OnItemClickListener onItemClickListener_coverList = new AdapterView.OnItemClickListener() {
         @Override
@@ -161,33 +216,6 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
                 cover_view.setImageResource(Constant.coverResIds[position]);
                 curCoverIndex = position;
             }
-        }
-    };
-    private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            Rect surfaceRect = new Rect();
-            view.getDrawingRect(surfaceRect);
-            int focus_view_size = getResources().getDimensionPixelSize(R.dimen.focus_view_size);
-            int photo_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_top_bar_height)+Math.round(focus_view_size/2);
-            int bottom_bar_height = getResources().getDimensionPixelSize(R.dimen.camera_bottom_bar_height)+Math.round(focus_view_size/2);
-            surfaceRect.top += photo_bar_height;
-            surfaceRect.bottom -= bottom_bar_height;
-            surfaceRect.left += Math.round(focus_view_size/2);
-            surfaceRect.right -= Math.round(focus_view_size/2);
-            float m_X = motionEvent.getX(0);
-            float m_Y = motionEvent.getY(0);
-            if (cameraHelper.isPreviewing
-                    && !cameraHelper.focusing
-                    && cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_BACK
-                    && surfaceRect.contains((int) m_X, (int) m_Y)) {
-                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(focus_view.getLayoutParams());
-                // 将focus_view中心移动到点击的地方
-                lp.setMargins((int) (m_X - focus_view_size/2), (int) (m_Y - focus_view_size/2), 0, 0);
-                focus_view.setLayoutParams(lp);
-                cameraHelper.autoFocus(false,false);
-            }
-            return false;
         }
     };
 
@@ -280,27 +308,14 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
                 case CameraHelper.MSG_TAKE_PICTURE:
                     theActivity.takePhoto();
                     break;
+                case CameraHelper.MSG_EXIT_APP:
+                    theActivity.finish();
+                    break;
             }
             super.handleMessage(msg);
         }
     }
     private viCmHandler handler = new viCmHandler(this);
-//     设置一个屏幕旋转监听器--发生屏幕旋转就重新检测
-//    ScreenOrnDetector.OnSrcnListener onSrcnListener = new ScreenOrnDetector.OnSrcnListener() {
-//        @Override
-//        public void onSrcnRoate(int Orientation) {
-//            int last_scrnOrient = screenOrn;
-//            if (Orientation>45&&Orientation<135) {
-//                screenOrn = ORIENTATION_REV_LAND;
-//            }else if (Orientation>135&&Orientation<225){
-//                screenOrn = ORIENTATION_REV_PORTRAIT;
-//            }else if (Orientation>225&&Orientation<315){
-//                screenOrn = ORIENTATION_LAND;
-//            }else if ((Orientation>315&&Orientation<360)||(Orientation>=0&&Orientation<45)){
-//                screenOrn = ORIENTATION_PORTAIT;
-//            }
-//        }
-//    };
 
     // 全局控件点击事件监听
     public void onClick(View v) {
@@ -323,6 +338,10 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
                 // 显示封面选项
                 showCoverList();
                 break;
+            case R.id.gallery_button:
+                // 显示本地相册
+                showLocalGallery();
+                break;
         }
     }
 
@@ -333,9 +352,11 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
         cameraHelper.switchCamera();
         AppSharedPreference.setCameraPos(cameraHelper.camera_position);
         if(cameraHelper.camera_position == Camera.CameraInfo.CAMERA_FACING_BACK){
+            switch_camera.setImageResource(R.mipmap.ic_camera_front_white_24dp);
             flash_light.setVisibility(Constant.hasFlashLight?View.VISIBLE:View.GONE);
             cameraHelper.autoFocus(true,false);
         }else{
+            switch_camera.setImageResource(R.mipmap.ic_camera_rear_white_24dp);
             flash_light.setVisibility(View.GONE);
             focus_view.setVisibility(View.GONE);
         }
@@ -344,7 +365,7 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
      * 显示/隐藏 封面选项面板
      */
     private void showCoverList(){
-        final RelativeLayout cover_icn_rl = (RelativeLayout)findViewById(R.id.cover_icn_rl);
+        final LinearLayout cover_icn_rl = (LinearLayout)findViewById(R.id.cover_icn_rl);
         if(ifCoverMenuShown){
             expand_button.setImageResource(R.mipmap.expand_icn);
             cover_icn_rl.setVisibility(View.INVISIBLE);
@@ -355,6 +376,23 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
             ifCoverMenuShown = true;
         }
     }
+    /**
+     * 加载本地相册
+     */
+    private void showLocalGallery(){
+        cameraHelper.stop();
+        // 打开本地相册
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, 0);
+            }
+        },100);
+    }
+
     /**
      * 切换闪光灯状态
      */
@@ -382,13 +420,13 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     private void setFlashLightView(int mode){
         switch(mode){
             case CameraHelper.FLIGHT_OFF:
-                flash_light.setImageResource(R.mipmap.flash_light_icn_disabled);
+                flash_light.setImageResource(R.mipmap.ic_flash_off_white_24dp);
                 break;
             case CameraHelper.FLIGHT_ON:
-                flash_light.setImageResource(R.mipmap.flash_light_icn_enable);
+                flash_light.setImageResource(R.mipmap.ic_flash_on_white_24dp);
                 break;
             case CameraHelper.FLIGHT_AUTO:
-                flash_light.setImageResource(R.mipmap.flash_light_icn_auto);
+                flash_light.setImageResource(R.mipmap.ic_flash_auto_white_24dp);
                 break;
             default:
                 break;
@@ -425,12 +463,18 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         // 如果只有一个摄像头，则默认打开后置摄像头，否则打开前置摄像头
+        camera_zoom_bar.setProgress(0);
         if(cameraHelper.cameraCount == 1) {
             cameraHelper.open();
+            switch_camera.setVisibility(View.GONE);
         } else if(cameraHelper.cameraCount >=2){
             int defCamPos = AppSharedPreference.getCameraPos();
-            if (defCamPos == Camera.CameraInfo.CAMERA_FACING_FRONT)
+            if (defCamPos == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 flash_light.setVisibility(View.GONE);
+                switch_camera.setImageResource(R.mipmap.ic_camera_rear_white_24dp);
+            } else {
+                switch_camera.setImageResource(R.mipmap.ic_camera_front_white_24dp);
+            }
             cameraHelper.open(defCamPos);
         }
 //
@@ -515,7 +559,27 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode!=RESULT_OK) {
             Toast.makeText(getApplicationContext(),"没有选择任何图片!",Toast.LENGTH_SHORT).show();
+            // 如果只有一个摄像头，则默认打开后置摄像头，否则打开前置摄像头
+            if(cameraHelper.cameraCount == 1) {
+                cameraHelper.open();
+            } else if(cameraHelper.cameraCount >=2){
+                int defCamPos = AppSharedPreference.getCameraPos();
+                if (defCamPos == Camera.CameraInfo.CAMERA_FACING_FRONT)
+                    flash_light.setVisibility(View.GONE);
+                cameraHelper.open(defCamPos);
+            }
+            return;
         }
+        switch (requestCode) {
+            case 0:
+                Uri uri = data.getData();
+                Intent intent = new Intent(MainActivity.this, CropImageActivity.class);
+                intent.putExtra(Constant.IMAGE_URI,uri);
+                intent.putExtra(Constant.COVER_INDEX, curCoverIndex);
+                startActivity(intent);
+                break;
+        }
+
     }
 
     @Override
@@ -525,8 +589,8 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
 
     @Override
     protected void onResume() {
-        setScreen();
         super.onResume();
+        setScreen();
     }
 
 
@@ -534,12 +598,6 @@ public class MainActivity extends MonitoredActivity implements SurfaceHolder.Cal
     @Override
     public void onBackPressed() {
         this.finish();
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        System.gc();
     }
 
     @Override

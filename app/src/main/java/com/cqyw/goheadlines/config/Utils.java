@@ -3,7 +3,7 @@ package com.cqyw.goheadlines.config;
 import android.app.ProgressDialog;
 import android.os.Handler;
 
-import com.cqyw.goheadlines.picture.MonitoredActivity;
+import com.cqyw.goheadlines.MonitoredActivity;
 
 /**
  * Created by Kairong on 2015/9/30.

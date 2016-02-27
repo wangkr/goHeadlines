@@ -1,9 +1,10 @@
-package com.cqyw.goheadlines.picture;
+package com.cqyw.goheadlines;
 
 import java.util.ArrayList;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.umeng.analytics.MobclickAgent;
 

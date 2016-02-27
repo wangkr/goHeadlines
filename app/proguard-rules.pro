@@ -76,6 +76,13 @@
     *;
  }
 
+ -keep class cn.sharesdk.**{*;}
+ -keep class com.sina.**{*;}
+ -keep class **.R$* {*;}
+ -keep class **.R{*;}
+ -dontwarn cn.sharesdk.**
+ -dontwarn **.R$*
+
 #如果引用了v4或者v7包
 -dontwarn android.support.**
 ############<span></span>混淆保护自己项目的部分代码以及引用的第三方jar包library-end##################

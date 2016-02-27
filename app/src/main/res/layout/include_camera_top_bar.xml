@@ -26,16 +26,16 @@
             android:id="@+id/flash_light"
             android:layout_height="match_parent"
             android:layout_width="45dp"
-            android:padding="12dp"
+            android:padding="10dp"
             android:background="@drawable/select_item_background"
-            android:src="@mipmap/flash_light_icn_disabled"/>
+            android:src="@mipmap/ic_flash_off_white_24dp"/>
         <ImageView
             android:id="@+id/switch_camera"
             android:layout_width="45dp"
             android:padding="10dp"
             android:layout_height="match_parent"
             android:background="@drawable/select_item_background"
-            android:src="@mipmap/switch_camera"/>
+            android:src="@mipmap/ic_camera_front_white_24dp"/>
     </LinearLayout>
 
 </RelativeLayout>

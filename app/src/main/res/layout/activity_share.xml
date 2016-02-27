@@ -11,9 +11,9 @@
 
         <ImageView
             android:id="@+id/back"
-            android:layout_width="50dp"
+            android:layout_width="60dp"
             android:layout_height="60dp"
-            android:paddingLeft="10dp"
+            android:paddingLeft="20dp"
             android:paddingRight="20dp"
             android:src="@drawable/btn_back"
             android:layout_centerVertical="true"

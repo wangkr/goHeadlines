@@ -1,6 +1,5 @@
 package com.cqyw.goheadlines;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -8,7 +7,6 @@ import android.view.Display;
 
 import com.cqyw.goheadlines.camera.CameraUtil;
 import com.cqyw.goheadlines.config.Constant;
-import com.cqyw.goheadlines.picture.MonitoredActivity;
 import com.cqyw.goheadlines.util.FileUtils;
 import com.cqyw.goheadlines.util.Logger;
 

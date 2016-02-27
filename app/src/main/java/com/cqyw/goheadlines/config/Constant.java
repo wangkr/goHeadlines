@@ -19,7 +19,8 @@ import java.security.NoSuchAlgorithmException;
  * mail:wangkrhust@gmail.com
  */
 public class Constant {
-    public static final String WX_APP_ID = "wxb32ce51a7fd0e394";
+    public static final String WX_APP_ID = "wx72d8148fb626304f";
+    public static final String TENCENT_APP_ID = "1104884734";
     public static final String WEIXIN = "WeiXin";
     public static final String WEIBO = "WeiBo";
     public static final String QZONE = "QZone";
